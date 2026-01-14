@@ -1,0 +1,106 @@
+- name: Fix Rocky Linux repos (mirrorlist issue)
+  hosts: vps
+  become: true
+  gather_facts: true
+
+  tasks:
+    - name: Stop if not Rocky Linux
+      meta: end_play
+      when: ansible_distribution != "Rocky"
+    - name: Check if Rocky repo backup exists
+      stat:
+        path: /etc/yum.repos.d.bak
+      register: rocky_repo_backup
+      when: ansible_distribution == "Rocky"
+
+    - name: Backup Rocky repo files
+      copy:
+        src: /etc/yum.repos.d/
+        dest: /etc/yum.repos.d.bak
+        remote_src: true
+        mode: preserve
+      when:
+        - ansible_distribution == "Rocky"
+        - not rocky_repo_backup.stat.exists
+
+
+    - name: Disable mirrorlist in Rocky repos
+      replace:
+        path: /etc/yum.repos.d/rocky.repo
+        regexp: '^mirrorlist='
+        replace: '#mirrorlist='
+      when: ansible_distribution == "Rocky"
+    - name: Enable baseurl in Rocky repos
+      replace:
+        path: /etc/yum.repos.d/rocky.repo
+        regexp: '^#baseurl='
+        replace: 'baseurl='
+      when: ansible_distribution == "Rocky"
+    - name: Clean dnf cache
+      command: dnf clean all
+      changed_when: false
+      when: ansible_distribution == "Rocky"
+
+    - name: Rebuild dnf cache
+      command: dnf makecache
+      when: ansible_distribution == "Rocky"
+
+    - name: Update system packages
+      dnf:
+        name: "*"
+        state: latest
+      when: ansible_distribution == "Rocky"
+
+    - name: Reboot if kernel was updated
+      reboot:
+      when: ansible_facts.packages['kernel'] is defined and ansible_facts.packages['kernel'][0].version != ansible_facts.kernel.version and ansible_distribution == "Rocky" 
+      become: true
+    - name: Wait for system to come back online
+      wait_for_connection:
+        delay: 10
+        timeout: 300
+      when: ansible_facts.packages['kernel'] is defined and ansible_facts.packages['kernel'][0].version != ansible_facts.kernel.version and ansible_distribution == "Rocky" 
+      become: true  
+    - name: Final system update check
+      dnf:
+        name: "*"
+        state: latest
+      when: ansible_distribution == "Rocky" 
+      become: true
+    - name: Ensure Python3 is installed
+      dnf:
+        name: python3
+        state: present
+      when: ansible_distribution == "Rocky" 
+      become: true  
+    - name: Ensure python3 is installed
+      dnf:
+        name: python3
+        state: present
+      when: ansible_distribution == "Rocky" 
+      become: true  
+    - name: Ensure python3-pip is installed
+      dnf:
+        name: python3-pip
+        state: present
+      when: ansible_distribution == "Rocky" 
+      become: true      
+    - name: Ensure git is installed
+      dnf:
+        name: git
+        state: present
+      when: ansible_distribution == "Rocky" 
+      become: true  
+    - name: Ensure curl is installed
+      dnf:
+        name: curl
+        state: present
+      when: ansible_distribution == "Rocky" 
+      become: true   
+    - name: Ensure wget is installed
+      dnf:
+        name: wget
+        state: present
+      when: ansible_distribution == "Rocky" 
+      become: true  
+      
