@@ -16,3 +16,10 @@ mahamid | SUCCESS => {
     "ping": "pong"
 }
 ```
+
+# RoadMap
+- [x] Full Devops,Kubernetes setup for development
+- [ ] Add Security to vps
+- [ ] prevent DDOS attacks
+- [ ] Add roles
+- [ ] make it more Modular and expandable
