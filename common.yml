@@ -1,0 +1,5 @@
+- name: Ensure /usr/local/bin is in system PATH
+  copy:
+    dest: /etc/profile.d/local-bin.sh
+    content: 'export PATH=/usr/local/bin:$PATH'
+    mode: '0644'

@@ -1,0 +1,110 @@
+---
+- name: Get latest kubectl version
+  shell: |
+    curl -L -s https://dl.k8s.io/release/stable.txt
+  register: kubectl_latest_version
+  changed_when: false
+  when: kubectl_version == "stable"
+
+- name: Download kubectl binary
+  get_url:
+    url: "https://dl.k8s.io/release/{{ kubectl_latest_version.stdout if kubectl_version == 'stable' else 'v' + kubectl_version }}/bin/linux/{{ architecture }}/kubectl"
+    dest: /usr/local/bin/kubectl
+    mode: '0755'
+
+- name: Install kubectl bash completion
+  shell: |
+    /usr/local/bin/kubectl completion bash > /etc/bash_completion.d/kubectl
+    /usr/local/bin/kubectl completion zsh > /usr/local/share/zsh/site-functions/_kubectl 2>/dev/null || true
+  args:
+    creates: /etc/bash_completion.d/kubectl
+
+- name: Download Minikube binary
+  get_url:
+    url: "https://storage.googleapis.com/minikube/releases/latest/minikube-linux-{{ architecture }}"
+    dest: /usr/local/bin/minikube
+    mode: '0755'
+
+- name: Install Minikube bash completion
+  shell: |
+    /usr/local/bin/minikube completion bash > /etc/bash_completion.d/minikube
+  args:
+    creates: /etc/bash_completion.d/minikube
+
+- name: Download and install stern
+  block:
+    - name: Download stern
+      get_url:
+        url: "https://github.com/stern/stern/releases/download/v{{ stern_version }}/stern_{{ stern_version }}_linux_amd64.tar.gz"
+        dest: /tmp/stern.tar.gz
+    
+    - name: Extract stern
+      shell: |
+        tar -xzf /tmp/stern.tar.gz -C /tmp stern
+        mv /tmp/stern /usr/local/bin/
+      args:
+        creates: /usr/local/bin/stern
+    
+    - name: Set executable permission
+      file:
+        path: /usr/local/bin/stern
+        mode: '0755'
+        owner: root
+        group: root
+  rescue:
+    - name: Debug failure
+      debug:
+        msg: "Failed to install stern"
+
+- name: Download k9s binary
+  get_url:
+    url: "https://github.com/derailed/k9s/releases/download/v{{ k9s_version }}/k9s_Linux_{{ architecture }}.tar.gz"
+    dest: /tmp/k9s.tar.gz
+
+- name: Extract k9s
+  unarchive:
+    src: /tmp/k9s.tar.gz
+    dest: /usr/local/bin
+    remote_src: yes
+    creates: /usr/local/bin/k9s
+
+
+- name: Set executable permission for k9s
+  file:
+    path: /usr/local/bin/k9s
+    mode: '0755'
+
+- name: Install kubectx and kubens
+  git:
+    repo: "https://github.com/ahmetb/kubectx.git"
+    dest: /opt/kubectx
+    version: "v{{ kubectx_version }}"
+
+- name: Create symlinks for kubectx and kubens
+  file:
+    src: "/opt/kubectx/{{ item }}"
+    dest: "/usr/local/bin/{{ item }}"
+    state: link
+  with_items:
+    - kubectx
+    - kubens
+
+- name: Install kubectx completion
+  shell: |
+    cp /opt/kubectx/completion/kubectx.bash /etc/bash_completion.d/kubectx
+    cp /opt/kubectx/completion/kubens.bash /etc/bash_completion.d/kubens
+  args:
+    creates: /etc/bash_completion.d/kubectx
+
+- name: Download kind binary
+  get_url:
+    url: "https://github.com/kubernetes-sigs/kind/releases/download/v{{ kind_version }}/kind-linux-{{ architecture }}"
+    dest: /usr/local/bin/kind
+    mode: '0755'
+
+- name: Download skaffold binary
+  get_url:
+    url: "https://storage.googleapis.com/skaffold/releases/latest/skaffold-linux-{{ architecture }}"
+    dest: /usr/local/bin/skaffold
+    mode: '0755'
+    force: no

@@ -1,0 +1,48 @@
+---
+- name: Install Docker dependencies
+  dnf:
+    name:
+      - yum-utils
+      - device-mapper-persistent-data
+      - lvm2
+    state: present
+
+- name: Download Docker repository file
+  get_url:
+    url: https://download.docker.com/linux/centos/docker-ce.repo
+    dest: /etc/yum.repos.d/docker-ce.repo
+    mode: '0644'
+
+- name: Install Docker CE with plugins
+  dnf:
+    name:
+      - docker-ce
+      - docker-ce-cli
+      - containerd.io
+      - docker-compose-plugin
+      - docker-buildx-plugin
+    state: present
+    update_cache: yes
+
+- name: Start and enable Docker service
+  systemd:
+    name: docker
+    state: started
+    enabled: yes
+    daemon_reload: yes
+
+- name: Add current user to docker group
+  user:
+    name: "{{ ansible_user }}"
+    groups: docker
+    append: yes
+
+- name: Verify Docker Compose installation
+  command: docker compose version
+  register: docker_compose_check
+  changed_when: false
+  ignore_errors: yes
+
+- name: Display Docker Compose version
+  debug:
+    msg: "Docker Compose version: {{ docker_compose_check.stdout_lines | default('Not available') }}"

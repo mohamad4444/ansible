@@ -1,0 +1,64 @@
+---
+- name: Download AWS CLI v2
+  get_url:
+    url: "https://awscli.amazonaws.com/awscli-exe-linux-{{ 'x86_64' if ansible_architecture == 'x86_64' else 'aarch64' }}.zip"
+    dest: /tmp/awscliv2.zip
+
+- name: Extract AWS CLI
+  unarchive:
+    src: /tmp/awscliv2.zip
+    dest: /tmp
+    remote_src: yes
+
+- name: Install AWS CLI
+  command: /tmp/aws/install --update
+  args:
+    removes: /usr/local/bin/aws
+
+- name: Install AWS CLI completion
+  shell: |
+    aws_completer_path=$(which aws_completer)
+    complete -C "$aws_completer_path" aws
+    echo "complete -C \"$aws_completer_path\" aws" >> /etc/bash_completion.d/aws
+
+- name: Download Terraform
+  get_url:
+    url: "https://releases.hashicorp.com/terraform/{{ terraform_version }}/terraform_{{ terraform_version }}_linux_{{ architecture }}.zip"
+    dest: /tmp/terraform.zip
+
+- name: Extract and install Terraform
+  unarchive:
+    src: /tmp/terraform.zip
+    dest: /usr/local/bin
+    remote_src: yes
+
+- name: Ensure terraform is executable
+  file:
+    path: /usr/local/bin/terraform
+    mode: '0755'
+
+- name: Check if Terraform autocomplete is already installed
+  ansible.builtin.shell: grep -q 'terraform' ~/.bashrc
+  register: terraform_completion_check
+  ignore_errors: yes
+
+- name: Install Terraform completion
+  ansible.builtin.shell: /usr/local/bin/terraform -install-autocomplete
+  args:
+    executable: /bin/bash
+  when: terraform_completion_check.rc != 0
+
+
+
+
+
+- name: Download Vault
+  get_url:
+    url: "https://releases.hashicorp.com/vault/{{ vault_version }}/vault_{{ vault_version }}_linux_{{ architecture }}.zip"
+    dest: /tmp/vault.zip
+
+- name: Extract and install Vault
+  unarchive:
+    src: /tmp/vault.zip
+    dest: /usr/local/bin
+    remote_src: yes
