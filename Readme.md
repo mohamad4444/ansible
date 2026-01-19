@@ -8,6 +8,9 @@ Ansible must be installed on host and it connects to VPS via ssh
 ## Testing Ansible connection
 ```
 ansible vps -i inventory.ini -m ping
+ansible all -m ping -i inventory/development/hosts.ini
+
+
 ```
 expected output
 ```
@@ -15,6 +18,12 @@ mahamid | SUCCESS => {
     "changed": false,
     "ping": "pong"
 }
+```
+## Run Ansible Playbook
+```
+ansible-playbook -i inventory.ini playbook.yml
+ansible-playbook playbooks/site.yml
+
 ```
 
 # RoadMap
