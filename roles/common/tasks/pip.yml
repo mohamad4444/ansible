@@ -1,0 +1,12 @@
+#pip.yaml
+---
+- name: Ensure pip is installed
+  ansible.builtin.package:
+    name: python3-pip
+    state: present
+
+- name: Install base pip packages
+  ansible.builtin.pip:
+    name: "{{ common_pip_packages }}"
+    executable: pip3
+  when: common_pip_packages | length > 0

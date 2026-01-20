@@ -1,0 +1,7 @@
+---
+- name: Ensure /usr/local/bin is in system PATH
+  ansible.builtin.copy:
+    dest: /etc/profile.d/local-bin.sh
+    content: 'export PATH=/usr/local/bin:$PATH'
+    mode: '0644'
+  when: "'/usr/local/bin' not in ansible_env.PATH"

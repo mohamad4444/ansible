@@ -1,0 +1,12 @@
+#main.yml
+---
+- import_tasks: repos.yml
+  when: common_install_packages
+
+- import_tasks: path.yml
+
+- import_tasks: packages.yml
+  when: common_install_packages
+
+- import_tasks: pip.yml
+
