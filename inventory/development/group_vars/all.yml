@@ -1,0 +1,46 @@
+---
+# Environment
+env:
+  name: development
+
+# Feature flags
+features:
+  docker: true
+  kubernetes: false
+  jenkins: false
+  monitoring: false
+  logging: false
+
+# Tool versions
+versions:
+  helm: "4.0.5"
+  helmfile: "1.2.3"
+  stern: "1.33.1"
+  kustomize: "5.8.0"
+  argocd: "3.2.5"
+  tilt: "0.36.0"
+  kind: "0.31.0"
+  kubectx: "0.9.5"
+  kubens: "0.9.5"
+  k9s: "0.50.18"
+
+  terraform: "1.14.3"
+  vault: "1.21.2"
+
+  jq: "1.8.1"
+  yq: "4.50.1"
+  kluctl: "2.27.0"
+
+  kubectl: "stable"
+
+  dive: "0.13.1"
+  lazydocker: "0.24.4"
+
+# Architecture handling
+architecture:
+  map:
+    x86_64: amd64
+    aarch64: arm64
+    arm64: arm64
+
+  resolved: "{{ architecture.map[ansible_architecture] | default('amd64') }}"
