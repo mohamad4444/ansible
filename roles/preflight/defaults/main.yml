@@ -1,8 +1,0 @@
-# Marker file to indicate preflight completion
-preflight_marker: "/etc/preflight_completed"
-
-# Backup directory for repo files
-repo_backup_dir: "/etc/yum.repos.d.bak"
-
-# Supported OS
-supported_os: "Rocky"
