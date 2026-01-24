@@ -1,0 +1,41 @@
+- name: Cleanup temporary files from /tmp
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: absent
+  loop:
+    - /tmp/helm.tar.gz
+    - /tmp/helmfile.tar.gz
+    - /tmp/kluctl.tar.gz
+    - /tmp/stern.tar.gz
+    - /tmp/k9s.tar.gz
+    - /tmp/kustomize.tar.gz
+    - /tmp/tilt.tar.gz
+    - /tmp/awscliv2.zip
+    - /tmp/aws
+    - /tmp/terraform.zip
+    - /tmp/vault.zip
+    - /tmp/dive.tar.gz
+    - /tmp/lazydocker.tar.gz
+    - /tmp/linux-amd64
+    - /tmp/linux-arm64
+    - /tmp/kubectl.tar.gz
+    - /tmp/kubectl-linux-amd64
+    - /tmp/kubectl-linux-arm64
+    - /tmp/kubectl-windows-amd64.zip
+    - /tmp/kubectl-darwin-amd64.tar.gz
+    - /tmp/minikube-linux-amd64
+    - /tmp/minikube-darwin-amd64
+    - /tmp/minikube-windows-amd64.exe
+    - /tmp/sonobuoy.tar.gz
+    - /tmp/ytt-linux-amd64
+    - /tmp/kubeseal-linux-amd64
+    - /tmp/kubeseal-darwin-amd64
+    - /tmp/kubeseal-windows-amd64.exe
+    - /tmp/sops-linux-amd64
+    - /tmp/sops-darwin-amd64
+    - /tmp/sops-windows-amd64.exe
+    - /tmp/helm-linux-amd64
+    - /tmp/helm-darwin-amd64
+    - /tmp/helm-windows-amd64.exe
+    - /tmp/helmfile-linux-amd64
+    - /tmp/helmfile-darwin-amd64  

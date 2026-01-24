@@ -1,0 +1,74 @@
+---
+- name: Fetch latest CLI tool versions
+  hosts: localhost
+  gather_facts: false
+
+  vars:
+    github_tools:
+      helm: helm/helm
+      helmfile: helmfile/helmfile
+      stern: stern/stern
+      kustomize: kubernetes-sigs/kustomize
+      argocd: argoproj/argo-cd
+      tilt: tilt-dev/tilt
+      kind: kubernetes-sigs/kind
+      kubectx: ahmetb/kubectx
+      kubens: ahmetb/kubectx
+      k9s: derailed/k9s
+      terraform: hashicorp/terraform
+      vault: hashicorp/vault
+      jq: jqlang/jq
+      yq: mikefarah/yq
+      kluctl: kluctl/kluctl
+
+  tasks:
+    - name: Fetch latest GitHub releases
+      ansible.builtin.uri:
+        url: "https://api.github.com/repos/{{ item.value }}/releases/latest"
+        return_content: true
+      loop: "{{ github_tools | dict2items }}"
+      register: releases
+
+    - name: Build version facts
+      ansible.builtin.set_fact:
+        versions: >-
+          {{
+            versions | default({}) |
+            combine({
+              item.item.key ~ '_version':
+              (item.json.tag_name | regex_replace('^v', ''))
+            })
+          }}
+      loop: "{{ releases.results }}"
+
+    - name: Add fixed / special versions
+      ansible.builtin.set_fact:
+        versions: >-
+          {{
+            versions | combine({
+              'kubectl_version': 'stable'
+            })
+          }}
+
+    - name: Add architecture mapping
+      ansible.builtin.set_fact:
+        versions: >-
+          {{
+            versions | combine({
+              'architecture_map': {
+                'x86_64': 'amd64',
+                'aarch64': 'arm64',
+                'arm64': 'arm64'
+              },
+              'architecture': "{{ architecture_map[ansible_architecture] | default('amd64') }}"
+            })
+          }}
+
+    - name: Write versions to vars file
+      ansible.builtin.copy:
+        dest: versions.auto.yml
+        content: |
+          ---
+          {% for k, v in versions.items() %}
+          {{ k }}: "{{ v }}"
+          {% endfor %}
