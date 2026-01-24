@@ -1,0 +1,50 @@
+- import_tasks: awscli.yml
+  when: install_awscli
+
+- import_tasks: terraform.yml
+  when: install_terraform
+
+- import_tasks: vault.yml
+  when: install_vault
+
+- import_tasks: helm.yml
+  when: install_helm
+
+- import_tasks: helmfile.yml
+  when: install_helmfile
+
+- import_tasks: kubectl.yml
+  when: install_kubectl
+
+- import_tasks: kustomize.yml
+  when: install_kustomize
+
+- import_tasks: k9s.yml
+  when: install_k9s
+
+- import_tasks: tilt.yml
+  when: install_tilt
+
+- import_tasks: stern.yml
+  when: install_stern
+
+- import_tasks: minikube.yml
+  when: install_minikube
+
+- import_tasks: sonobuoy.yml
+  when: install_sonobuoy
+
+- import_tasks: ytt.yml
+  when: install_ytt
+
+- import_tasks: kubeseal.yml
+  when: install_kubeseal
+
+- import_tasks: sops.yml
+  when: install_sops
+
+- import_tasks: dive.yml
+  when: install_dive
+
+- import_tasks: lazydocker.yml
+  when: install_lazydocker

@@ -1,0 +1,19 @@
+---
+- name: Enable EPEL repository
+  ansible.builtin.dnf:
+    name: epel-release
+    state: present
+  when: common_install_packages
+
+- name: Install essential system packages
+  ansible.builtin.dnf:
+    name: "{{ common_packages }}"
+    state: present
+    update_cache: true
+  when: common_install_packages
+
+- name: Install pip packages
+  ansible.builtin.pip:
+    name: "{{ common_pip_packages }}"
+    executable: pip3
+  when: common_pip_packages | length > 0

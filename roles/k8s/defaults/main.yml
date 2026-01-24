@@ -1,0 +1,48 @@
+---
+# Common role defaults
+
+# Whether to install base system packages
+common_install_packages: true
+
+# Base packages to install
+common_packages:
+  - python3
+  - python3-pip
+  - python3-devel
+  - git
+  - curl
+  - wget
+  - vim
+  - nano
+  - bash-completion
+  - bind-utils
+  - net-tools
+  - socat
+  - conntrack
+  - iproute-tc
+  - htop
+  - tree
+  - tmux
+  - make
+  - gcc
+  - gcc-c++
+  - openssl-devel
+  - libffi-devel
+  - zlib-devel
+  - bzip2-devel
+  - readline-devel
+  - sqlite-devel
+  - xz-devel
+  - ncurses-devel
+  - rsync
+  - unzip
+  - tar
+  - gnupg2
+  - ca-certificates
+  - lsof
+  - jq
+  - gettext
+
+# Pip tools to install system-wide
+common_pip_packages:
+  - yamllint
