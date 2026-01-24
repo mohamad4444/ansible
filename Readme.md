@@ -25,7 +25,11 @@ ansible-playbook -i inventory.ini playbook.yml
 ansible-playbook playbooks/site.yml
 
 ```
+## Generate role structure
+```
+ansible-galaxy init jenkins
 
+```
 # RoadMap
 - [x] Full Devops,Kubernetes setup for development
 - [ ] Add Security to vps

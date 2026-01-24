@@ -1,0 +1,20 @@
+- name: Create apt keyrings directory
+  ansible.builtin.file:
+    path: /etc/apt/keyrings
+    state: directory
+    mode: '0755'
+
+- name: Download Jenkins GPG key
+  ansible.builtin.get_url:
+    url: "{{ jenkins_repo_urls.debian[jenkins_version_type] }}"
+    dest: /etc/apt/keyrings/jenkins-keyring.asc
+    mode: '0644'
+
+- name: Add Jenkins apt source (Debian)
+  ansible.builtin.apt_repository:
+    repo: "deb [signed-by=/etc/apt/keyrings/jenkins-keyring.asc] https://pkg.jenkins.io/{{ 'debian-stable' if jenkins_version_type == 'lts' else 'debian' }} binary/"
+    state: present
+
+- name: Update apt cache
+  ansible.builtin.apt:
+    update_cache: yes

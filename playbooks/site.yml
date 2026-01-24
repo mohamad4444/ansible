@@ -1,5 +1,6 @@
-- hosts: rocky_servers
+- hosts: debian_servers
   become: true
   roles:
-    - preflight
-    - common
+    # - common
+    # - docker
+    - jenkins

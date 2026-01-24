@@ -1,0 +1,128 @@
+---
+# Ensure supported OS
+- name: Ensure OS is supported
+  ansible.builtin.assert:
+    that:
+      - ansible_os_family in ['Debian', 'RedHat', 'Fedora']
+    fail_msg: "This role only supports Debian/Ubuntu, RedHat/CentOS/Rocky/Fedora"
+
+# ----------------------------
+# Install Java
+# ----------------------------
+- name: Install Java (Debian)
+  apt:
+    name:
+      - "{{ java_package }}"
+      - fontconfig
+    state: present
+    update_cache: yes
+  when: ansible_os_family == "Debian"
+
+- name: Install Java (RedHat/Fedora)
+  dnf:
+    name:
+      - java-21-openjdk
+      - fontconfig
+    state: present
+  when: ansible_os_family in ["RedHat", "Fedora"]
+
+# ----------------------------
+# Debian: Add Jenkins repository without apt-key
+# ----------------------------
+- name: Create apt keyrings directory
+  ansible.builtin.file:
+    path: /etc/apt/keyrings
+    state: directory
+    mode: '0755'
+  when: ansible_os_family == "Debian"
+
+- name: Download Jenkins GPG key
+  ansible.builtin.get_url:
+    url: "{{ jenkins_repo_urls.debian[jenkins_version_type] }}"
+    dest: /etc/apt/keyrings/jenkins-keyring.asc
+    mode: '0644'
+  when: ansible_os_family == "Debian"
+
+- name: Add Jenkins apt source (Debian)
+  ansible.builtin.apt_repository:
+    repo: "deb [signed-by=/etc/apt/keyrings/jenkins-keyring.asc] https://pkg.jenkins.io/{{ 'debian-stable' if jenkins_version_type == 'lts' else 'debian' }} binary/"
+    state: present
+  when: ansible_os_family == "Debian"
+
+- name: Update apt cache (Debian)
+  ansible.builtin.apt:
+    update_cache: yes
+  when: ansible_os_family == "Debian"
+
+# ----------------------------
+# RedHat/Fedora: Add Jenkins repo
+# ----------------------------
+- name: Add Jenkins repo (RedHat/Fedora)
+  ansible.builtin.get_url:
+    url: "{{ jenkins_repo_urls.redhat[jenkins_version_type] }}"
+    dest: /etc/yum.repos.d/jenkins.repo
+  when: ansible_os_family in ["RedHat", "Fedora"]
+
+- name: Upgrade all packages (RedHat/Fedora)
+  dnf:
+    name: "*"
+    state: latest
+  when: ansible_os_family in ["RedHat", "Fedora"]
+
+# ----------------------------
+# Install Jenkins
+# ----------------------------
+- name: Install Jenkins (Debian)
+  ansible.builtin.apt:
+    name: "jenkins{{ '=' + jenkins_version_number if jenkins_version_number != '' else '' }}"
+    state: present
+  when: ansible_os_family == "Debian"
+
+- name: Install Jenkins (RedHat/Fedora)
+  dnf:
+    name: "jenkins{{ '-' + jenkins_version_number if jenkins_version_number != '' else '' }}"
+    state: present
+  when: ansible_os_family in ["RedHat", "Fedora"]
+
+# ----------------------------
+# Reload systemd
+# ----------------------------
+- name: Reload systemd
+  ansible.builtin.systemd:
+    daemon_reload: yes
+
+# ----------------------------
+# Enable and start Jenkins
+# ----------------------------
+- name: Ensure Jenkins is enabled and started
+  ansible.builtin.service:
+    name: jenkins
+    state: started
+    enabled: yes
+
+# ----------------------------
+# Open firewall (RedHat/Fedora)
+# ----------------------------
+- name: Open Jenkins firewall port
+  ansible.builtin.command: >
+    firewall-cmd --permanent --add-port={{ jenkins_port }}/tcp
+  when: ansible_os_family in ["RedHat", "Fedora"]
+
+- name: Reload firewall
+  ansible.builtin.command: firewall-cmd --reload
+  when: ansible_os_family in ["RedHat", "Fedora"]
+
+- name: Wait a few seconds for Jenkins to initialize
+  ansible.builtin.wait_for:
+    path: "{{ jenkins_home }}/secrets/initialAdminPassword"
+    state: present
+    timeout: 60
+
+- name: Read Jenkins initial admin password
+  ansible.builtin.slurp:
+    src: "{{ jenkins_home }}/secrets/initialAdminPassword"
+  register: jenkins_admin_pass
+
+- name: Show Jenkins initial admin password
+  ansible.builtin.debug:
+    msg: "Jenkins initial admin password: {{ jenkins_admin_pass.content | b64decode }}"
