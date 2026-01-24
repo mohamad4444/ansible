@@ -1,6 +1,6 @@
 ---
-- name: Install essential system packages
-  ansible.builtin.dnf:
+- name: Install essential system packages on Debian
+  ansible.builtin.apt:
     name: "{{ common_packages }}"
     state: present
-    update_cache: true
+    update_cache: yes

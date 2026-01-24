@@ -4,32 +4,31 @@ common_install_packages: true
 common_packages:
   - python3
   - python3-pip
-  - python3-devel
+  - python3-venv            # add venv support
+  - python3-dev              # instead of python3-devel
   - git
   - curl
   - wget
   - vim
   - nano
   - bash-completion
-  - bind-utils
+  - dnsutils                 # instead of bind-utils
   - net-tools
   - socat
-  - conntrack
-  - iproute-tc
+  - conntrack               # same on Debian
+  - iproute2                 # instead of iproute-tc
   - htop
   - tree
   - tmux
-  - make
-  - gcc
-  - gcc-c++
-  - openssl-devel
-  - libffi-devel
-  - zlib-devel
-  - bzip2-devel
-  - readline-devel
-  - sqlite-devel
-  - xz-devel
-  - ncurses-devel
+  - build-essential         # includes gcc, g++, make
+  - libssl-dev               # instead of openssl-devel
+  - libffi-dev               # instead of libffi-devel
+  - zlib1g-dev               # instead of zlib-devel
+  - libbz2-dev               # instead of bzip2-devel
+  - libreadline-dev           # instead of readline-devel
+  - libsqlite3-dev           # instead of sqlite-devel
+  - xz-utils                 # provides xz compression/decompression
+  - libncurses5-dev          # instead of ncurses-devel
   - rsync
   - unzip
   - tar
@@ -42,3 +41,4 @@ common_packages:
 common_pip_packages:
   - yamllint
   - ansible-lint
+venv_path: /opt/ansible-venv       # virtual environment path

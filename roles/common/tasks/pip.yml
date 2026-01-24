@@ -1,12 +1,18 @@
 #pip.yaml
 ---
-- name: Ensure pip is installed
-  ansible.builtin.package:
-    name: python3-pip
-    state: present
+- name: Create Python virtual environment for pip packages
+  ansible.builtin.command:
+    cmd: python3 -m venv "{{ venv_path }}"
+  args:
+    creates: "{{ venv_path }}/bin/activate"
 
-- name: Install base pip packages
+- name: Upgrade pip in the virtual environment
+  ansible.builtin.command:
+    cmd: "{{ venv_path }}/bin/pip install --upgrade pip"
+
+- name: Install Python pip packages in virtual environment
   ansible.builtin.pip:
     name: "{{ common_pip_packages }}"
-    executable: pip3
+    virtualenv: "{{ venv_path }}"
+    virtualenv_command: python3 -m venv
   when: common_pip_packages | length > 0
