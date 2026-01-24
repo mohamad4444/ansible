@@ -1,0 +1,11 @@
+---
+# Role defaults, can be overridden in inventory or playbooks
+docker_user: "{{ ansible_user | default('root') }}"
+docker_packages:
+  - docker-ce
+  - docker-ce-cli
+  - containerd.io
+  - docker-compose-plugin
+  - docker-buildx-plugin
+docker_log_driver: "json-file"
+docker_log_max_size: "10m"
