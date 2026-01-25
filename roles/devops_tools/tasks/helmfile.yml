@@ -1,0 +1,16 @@
+---
+- name: Download Helmfile binary
+  get_url:
+    url: "https://github.com/helmfile/helmfile/releases/download/v{{ helmfile_version }}/helmfile_{{ helmfile_version }}_linux_{{ architecture }}.tar.gz"
+    dest: /tmp/helmfile.tar.gz
+
+- name: Extract and install Helmfile
+  unarchive:
+    src: /tmp/helmfile.tar.gz
+    dest: /usr/local/bin
+    remote_src: yes
+
+- name: Set executable permission for Helmfile
+  file:
+    path: /usr/local/bin/helmfile
+    mode: '0755'

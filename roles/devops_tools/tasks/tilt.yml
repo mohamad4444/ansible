@@ -1,0 +1,17 @@
+---
+- name: Download tilt binary
+  get_url:
+    url: "https://github.com/tilt-dev/tilt/releases/download/v{{ tilt_version }}/tilt.{{ tilt_version }}.linux.{{ 'x86_64' if ansible_architecture == 'x86_64' else 'arm64' }}.tar.gz"
+    dest: /tmp/tilt.tar.gz
+
+- name: Extract and install tilt
+  unarchive:
+    src: /tmp/tilt.tar.gz
+    dest: /usr/local/bin
+    remote_src: yes
+    extra_opts: [--strip-components=1]
+
+- name: Set executable permission for tilt
+  file:
+    path: /usr/local/bin/tilt
+    mode: '0755'

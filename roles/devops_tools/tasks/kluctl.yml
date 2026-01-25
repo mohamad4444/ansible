@@ -1,0 +1,21 @@
+---
+- name: Download Kluctl archive
+  get_url:
+    url: "https://github.com/kluctl/kluctl/releases/download/v{{ kluctl_version }}/kluctl_v{{ kluctl_version }}_linux_{{ architecture }}.tar.gz"
+    dest: /tmp/kluctl.tar.gz
+
+- name: Extract Kluctl
+  unarchive:
+    src: /tmp/kluctl.tar.gz
+    dest: /usr/local/bin
+    remote_src: yes
+
+- name: Ensure Kluctl is executable
+  file:
+    path: /usr/local/bin/kluctl
+    mode: '0755'
+
+- name: Install Kluctl bash completion
+  shell: /usr/local/bin/kluctl completion bash > /etc/bash_completion.d/kluctl
+  args:
+    creates: /etc/bash_completion.d/kluctl

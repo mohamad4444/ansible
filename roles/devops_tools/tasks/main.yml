@@ -48,3 +48,10 @@
 
 - import_tasks: lazydocker.yml
   when: install_lazydocker
+
+- import_tasks: kluctl.yml
+  when: install_kluctl
+
+- import_tasks: argocd.yml
+  when: install_argocd
+
