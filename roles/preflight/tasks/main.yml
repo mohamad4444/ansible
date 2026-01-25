@@ -1,0 +1,62 @@
+---
+- name: Update apt cache (Debian/Ubuntu)
+  apt:
+    update_cache: yes
+    cache_valid_time: 3600
+  when: 
+    - ansible_os_family == "Debian"
+    - preflight_update_cache | default(true)
+
+- name: Upgrade all packages (Debian/Ubuntu)
+  apt:
+    upgrade: dist
+  when:
+    - ansible_os_family == "Debian"
+    - preflight_dist_upgrade | default(false)
+
+- name: Upgrade all packages to latest (Debian/Ubuntu)
+  apt:
+    upgrade: yes
+  when:
+    - ansible_os_family == "Debian"
+    - preflight_upgrade_packages | default(false)
+    - not (preflight_dist_upgrade | default(false))
+
+- name: Install essential packages (Debian/Ubuntu)
+  apt:
+    name: "{{ preflight_essential_packages }}"
+    state: present
+  when:
+    - ansible_os_family == "Debian"
+    - preflight_install_essentials | default(true)
+
+- name: Update dnf cache (RHEL/Fedora)
+  dnf:
+    update_cache: yes
+  when:
+    - ansible_os_family in ["RedHat", "Fedora"]
+    - preflight_update_cache | default(true)
+
+- name: Upgrade all packages (RHEL/Fedora)
+  dnf:
+    name: "*"
+    state: latest
+  when:
+    - ansible_os_family in ["RedHat", "Fedora"]
+    - preflight_upgrade_packages | default(false)
+
+- name: Install essential packages (RHEL/Fedora)
+  dnf:
+    name: "{{ preflight_essential_packages }}"
+    state: present
+  when:
+    - ansible_os_family in ["RedHat", "Fedora"]
+    - preflight_install_essentials | default(true)
+
+- name: Display preflight completion message
+  debug:
+    msg: |
+      Preflight checks complete:
+      - Package cache updated
+      - Essential packages installed
+      - System ready for role execution

@@ -1,0 +1,23 @@
+---
+# Preflight role configuration
+
+# Whether to update package cache
+preflight_update_cache: true
+
+# Whether to upgrade all packages
+preflight_upgrade_packages: false
+
+# Whether to perform dist-upgrade (Debian) / update (RHEL)
+preflight_dist_upgrade: false
+
+# Whether to install essential packages first
+preflight_install_essentials: true
+
+# Essential packages to ensure are installed
+preflight_essential_packages:
+  - python3
+  - python3-pip
+  - curl
+  - wget
+  - git
+  - sudo

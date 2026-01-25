@@ -1,6 +1,7 @@
 - hosts: debian_servers
   become: true
   roles:
+    - preflight       # Update system packages first
     - users          # Create system users first
     - common         # Base packages and utilities
     - docker         # Docker installation
