@@ -1,0 +1,76 @@
+#!/bin/bash
+
+# Kubernetes helper functions
+kexec() {
+  local pod=$(kubectl get pods -n ${2:-default} | grep $1 | head -1 | awk '{print $1}')
+  kubectl exec -it $pod -n ${2:-default} -- ${3:-bash}
+}
+
+klogs() {
+  local pod=$(kubectl get pods -n ${2:-default} | grep $1 | head -1 | awk '{print $1}')
+  kubectl logs -f $pod -n ${2:-default}
+}
+
+kport() {
+  kubectl port-forward $1 ${2:-8080}:${3:-8080} -n ${4:-default}
+}
+
+kclean() {
+  kubectl delete pod --field-selector=status.phase==Succeeded -A
+  kubectl delete pod --field-selector=status.phase==Failed -A
+}
+
+# Kluctl helper functions
+kluctl-deploy() {
+  kluctl deploy -t $1 --yes
+}
+
+kluctl-diff() {
+  kluctl diff -t $1
+}
+
+kluctl-validate() {
+  kluctl validate -t $1
+}
+
+kluctl-prune() {
+  kluctl prune -t $1 --yes
+}
+
+# Cluster management
+cluster-info() {
+  echo "Current Context:"
+  kubectl config current-context
+  echo ""
+  echo "Cluster Info:"
+  kubectl cluster-info
+  echo ""
+  echo "Nodes:"
+  kubectl get nodes -o wide
+  echo ""
+  echo "Namespaces:"
+  kubectl get namespaces
+}
+
+# Resource monitoring
+watch-pods() {
+  watch -n 2 "kubectl get pods -A --sort-by='.metadata.creationTimestamp'"
+}
+
+watch-nodes() {
+  watch -n 5 "kubectl get nodes -o wide"
+}
+
+# Debug functions
+pod-details() {
+  kubectl describe pod $1 -n ${2:-default}
+}
+
+pod-yaml() {
+  kubectl get pod $1 -n ${2:-default} -o yaml
+}
+
+# Secret decoding
+decode-secret() {
+  kubectl get secret $1 -n ${2:-default} -o jsonpath="{.data.$3}" | base64 --decode
+}

@@ -1,0 +1,56 @@
+---
+- name: Create example Kluctl project directory
+  file:
+    path: "~{{ item }}/projects/kluctl-example"
+    state: directory
+    owner: "{{ item }}"
+    group: "{{ item }}"
+  loop: "{{ environment_users }}"
+  when: environment_create_kluctl_example | default(true)
+
+- name: Create Kluctl example README
+  copy:
+    dest: "~{{ item }}/projects/kluctl-example/README.md"
+    content: |
+      # Kluctl Example Project
+      
+      This is an example Kluctl project structure.
+      
+      Quick Start:
+      
+      1. Initialize a new project:
+      kluctl create project my-project
+      
+      2. Deploy to cluster:
+      kluctl deploy -t dev --yes
+      
+      3. Check diff:
+      kluctl diff -t dev
+      
+      4. Validate deployment:
+      kluctl validate -t dev
+      
+      Common Commands:
+      
+      - kluctl deploy -t <target> - Deploy to target environment
+      - kluctl diff -t <target> - Show diff between local and cluster
+      - kluctl prune -t <target> - Prune orphaned resources
+      - kluctl helm-update - Update Helm charts
+      - kluctl list-images -t <target> - List images used in deployment
+      
+      Project Structure:
+      
+      .kluctl.yml       # Kluctl configuration
+      .kluctl/          # Target definitions
+        dev.yml
+        staging.yml
+        prod.yml
+      deployments/      # Deployment configurations
+        my-app/
+          kustomization.yml
+          deployment.yml
+          service.yml
+    owner: "{{ item }}"
+    group: "{{ item }}"
+  loop: "{{ environment_users }}"
+  when: environment_create_kluctl_example | default(true)

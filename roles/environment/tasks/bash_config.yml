@@ -1,0 +1,50 @@
+---
+- name: Create user directories
+  file:
+    path: "~{{ item.0 }}/{{ item.1 }}"
+    state: directory
+    owner: "{{ item.0 }}"
+    group: "{{ item.0 }}"
+    mode: '0750'
+  loop: "{{ environment_users | product(environment_directories) | list }}"
+  when: environment_directories is defined
+
+- name: Install kubectl aliases
+  get_url:
+    url: https://raw.githubusercontent.com/ahmetb/kubectl-aliases/master/.kubectl_aliases
+    dest: "~{{ item }}/.kubectl_aliases"
+    mode: '0644'
+    owner: "{{ item }}"
+    group: "{{ item }}"
+  loop: "{{ environment_users }}"
+  when: environment_install_kubectl_aliases | default(true)
+
+- name: Configure bashrc for tools
+  lineinfile:
+    path: "~{{ item.0 }}/.bashrc"
+    line: "{{ item.1 }}"
+    create: yes
+    owner: "{{ item.0 }}"
+    group: "{{ item.0 }}"
+  loop: "{{ environment_users | product(environment_variables + environment_aliases + environment_completions) | list }}"
+  when: environment_configure_bash | default(true)
+
+- name: Create ~/.bash_profile if it doesn't exist
+  file:
+    path: "~{{ item }}/.bash_profile"
+    state: touch
+    owner: "{{ item }}"
+    group: "{{ item }}"
+    modification_time: preserve
+    access_time: preserve
+  loop: "{{ environment_users }}"
+  when: environment_configure_bash | default(true)
+
+- name: Source bashrc from bash_profile
+  lineinfile:
+    path: "~{{ item }}/.bash_profile"
+    line: '[[ -f ~/.bashrc ]] && . ~/.bashrc'
+    owner: "{{ item }}"
+    group: "{{ item }}"
+  loop: "{{ environment_users }}"
+  when: environment_configure_bash | default(true)

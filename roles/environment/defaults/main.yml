@@ -1,0 +1,64 @@
+---
+# Users to configure environment for
+environment_users: ["{{ ansible_user }}"]
+
+# Whether to configure bash
+environment_configure_bash: true
+
+# Whether to configure zsh (optional)
+environment_configure_zsh: false
+
+# Whether to install kubectl aliases
+environment_install_kubectl_aliases: true
+
+# Whether to create Kluctl example project
+environment_create_kluctl_example: true
+
+# Directories to create
+environment_directories:
+  - ".kube"
+  - ".aws"
+  - ".kluctl"
+
+# Environment variables to add to shell config
+environment_variables:
+  - 'export PATH=$PATH:/usr/local/bin:/usr/local/go/bin:$HOME/.local/bin'
+  - 'export KUBECONFIG=$HOME/.kube/config'
+  - 'export MINIKUBE_DRIVER=docker'
+  - 'export EDITOR=vim'
+
+# Shell aliases
+environment_aliases:
+  # Kubernetes aliases
+  - 'alias k="kubectl"'
+  - 'alias kc="kubectl"'
+  - 'alias kd="kubectl describe"'
+  - 'alias kg="kubectl get"'
+  - 'alias kl="kubectl logs"'
+  - 'alias kaf="kubectl apply -f"'
+  - 'alias kdf="kubectl delete -f"'
+  - 'alias kgp="kubectl get pods"'
+  - 'alias kgn="kubectl get nodes"'
+  - 'alias kdp="kubectl describe pod"'
+  - 'alias kdd="kubectl describe deployment"'
+  - 'alias kds="kubectl describe service"'
+  # Docker aliases
+  - 'alias d="docker"'
+  - 'alias dc="docker-compose"'
+  - 'alias dps="docker ps"'
+  - 'alias dimg="docker images"'
+  # Tool aliases
+  - 'alias tf="terraform"'
+  - 'alias h="helm"'
+  - 'alias hf="helmfile"'
+  - 'alias kctl="kluctl"'
+  - 'alias stern="stern --tail 10"'
+
+# Bash completions
+environment_completions:
+  - 'source /etc/bash_completion'
+  - 'source <(kubectl completion bash)'
+  - 'source <(helm completion bash)'
+  - 'source <(kluctl completion bash)'
+  - '[[ -f ~/.kubectl_aliases ]] && source ~/.kubectl_aliases'
+  - 'complete -o default -F __start_kubectl k'

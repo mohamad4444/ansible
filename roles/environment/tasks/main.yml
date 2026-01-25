@@ -1,0 +1,8 @@
+---
+- import_tasks: bash_config.yml
+  when: environment_configure_bash | default(true)
+
+- import_tasks: helper_functions.yml
+
+- import_tasks: kluctl_example.yml
+  when: environment_create_kluctl_example | default(true)
