@@ -1,0 +1,100 @@
+---
+# This playbook verifies that all tools are properly installed
+- name: Verify DevOps Environment Installation
+  hosts: all
+  become: no
+  gather_facts: yes
+  
+  tasks:
+    - name: Verify tool installations
+      shell: |
+        echo "=== System Information ==="
+        echo "OS: $(cat /etc/os-release | grep PRETTY_NAME | cut -d= -f2)"
+        echo "Kernel: $(uname -r)"
+        echo ""
+        
+        echo "=== User Information ==="
+        echo "Current user: $(whoami)"
+        echo "Groups: $(groups)"
+        echo ""
+        
+        echo "=== Container Tools ==="
+        docker --version 2>/dev/null || echo "Docker: NOT INSTALLED"
+        docker-compose --version 2>/dev/null || echo "Docker Compose: NOT INSTALLED"
+        echo ""
+        
+        echo "=== Kubernetes Tools ==="
+        kubectl version --client 2>/dev/null | head -1 || echo "kubectl: NOT INSTALLED"
+        minikube version 2>/dev/null | head -1 || echo "minikube: NOT INSTALLED"
+        kind --version 2>/dev/null || echo "kind: NOT INSTALLED"
+        k9s version 2>/dev/null | head -1 || echo "k9s: NOT INSTALLED"
+        stern --version 2>/dev/null || echo "stern: NOT INSTALLED"
+        kubectx --version 2>/dev/null || echo "kubectx: NOT INSTALLED"
+        kubens --version 2>/dev/null || echo "kubens: NOT INSTALLED"
+        skaffold version 2>/dev/null || echo "skaffold: NOT INSTALLED"
+        echo ""
+        
+        echo "=== GitOps Tools ==="
+        helm version --short 2>/dev/null || echo "Helm: NOT INSTALLED"
+        helmfile --version 2>/dev/null || echo "Helmfile: NOT INSTALLED"
+        kluctl version 2>/dev/null | head -1 || echo "Kluctl: NOT INSTALLED"
+        kustomize version 2>/dev/null | head -1 || echo "Kustomize: NOT INSTALLED"
+        tilt version 2>/dev/null | head -1 || echo "Tilt: NOT INSTALLED"
+        argocd version --client 2>/dev/null | head -1 || echo "ArgoCD CLI: NOT INSTALLED"
+        echo ""
+        
+        echo "=== Cloud Tools ==="
+        aws --version 2>/dev/null || echo "AWS CLI: NOT INSTALLED"
+        terraform version 2>/dev/null | head -1 || echo "Terraform: NOT INSTALLED"
+        vault version 2>/dev/null || echo "Vault: NOT INSTALLED"
+        echo ""
+        
+        echo "=== Utilities ==="
+        yq --version 2>/dev/null || echo "yq: NOT INSTALLED"
+        jq --version 2>/dev/null || echo "jq: NOT INSTALLED"
+        hadolint --version 2>/dev/null || echo "hadolint: NOT INSTALLED"
+        shellcheck --version 2>/dev/null | head -1 || echo "shellcheck: NOT INSTALLED"
+        dive --version 2>/dev/null || echo "dive: NOT INSTALLED"
+        lazydocker --version 2>/dev/null || echo "lazydocker: NOT INSTALLED"
+        echo ""
+        
+        echo "=== Environment Check ==="
+        echo "PATH: $PATH"
+        echo "KUBECONFIG: ${KUBECONFIG:-NOT SET}"
+        echo ""
+        
+        echo "=== Aliases Check ==="
+        type k 2>/dev/null && echo "Alias 'k' found" || echo "Alias 'k' NOT FOUND"
+        type kexec 2>/dev/null && echo "Function 'kexec' found" || echo "Function 'kexec' NOT FOUND"
+        echo ""
+        
+        echo "=== Sudo Permissions Check ==="
+        sudo -l 2>/dev/null | grep -E "User $(whoami)" || echo "No sudo permissions configured"
+      register: verification_output
+      changed_when: false
+      
+    - name: Display verification results
+      debug:
+        msg: "{{ verification_output.stdout_lines }}"
+        
+    - name: Check if deploy user exists
+      command: id deploy
+      register: deploy_user
+      failed_when: false
+      changed_when: false
+      
+    - name: Display deploy user info
+      debug:
+        msg: "Deploy user exists: {{ deploy_user.rc == 0 }}"
+      when: deploy_user.rc == 0
+      
+    - name: Check if jenkins user exists
+      command: id jenkins
+      register: jenkins_user
+      failed_when: false
+      changed_when: false
+      
+    - name: Display jenkins user info
+      debug:
+        msg: "Jenkins user exists: {{ jenkins_user.rc == 0 }}"
+      when: jenkins_user.rc == 0
