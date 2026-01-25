@@ -8,3 +8,8 @@
 
 - import_tasks: pip.yml
 
+- import_tasks: utilities.yml
+  when: common_install_utilities | default(true)
+
+- import_tasks: verify.yml
+  when: common_run_verification | default(false)

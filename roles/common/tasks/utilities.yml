@@ -1,0 +1,57 @@
+---
+- name: Download yq binary
+  get_url:
+    url: "https://github.com/mikefarah/yq/releases/download/v{{ yq_version }}/yq_linux_{{ architecture }}"
+    dest: /usr/local/bin/yq
+    mode: '0755'
+
+- name: Download hadolint binary
+  get_url:
+    url: "https://github.com/hadolint/hadolint/releases/latest/download/hadolint-Linux-{{ 'x86_64' if ansible_architecture == 'x86_64' else 'arm64' }}"
+    dest: /usr/local/bin/hadolint
+    mode: '0755'
+
+- name: Install shellcheck (Debian)
+  apt:
+    name: shellcheck
+    state: present
+  when: ansible_os_family == "Debian"
+
+- name: Install shellcheck (RHEL/Fedora)
+  dnf:
+    name: ShellCheck
+    state: present
+  when: ansible_os_family in ["RedHat", "Fedora"]
+
+- name: Download dive binary
+  get_url:
+    url: "https://github.com/wagoodman/dive/releases/download/v{{ dive_version }}/dive_{{ dive_version }}_linux_{{ dive_architecture }}.tar.gz"
+    dest: /tmp/dive.tar.gz
+    mode: '0644'
+
+- name: Extract and install dive
+  unarchive:
+    src: /tmp/dive.tar.gz
+    dest: /usr/local/bin
+    remote_src: yes
+    extra_opts:
+      - --strip-components=1
+
+- name: Download ctop binary
+  get_url:
+    url: "https://github.com/bcicen/ctop/releases/latest/download/ctop-0.7.7-linux-{{ architecture }}"
+    dest: /usr/local/bin/ctop
+    mode: '0755'
+
+- name: Download lazydocker binary
+  ansible.builtin.get_url:
+    url: "https://github.com/jesseduffield/lazydocker/releases/download/v{{ lazydocker_version }}/lazydocker_{{ lazydocker_version }}_Linux_x86_64.tar.gz"
+    dest: /tmp/lazydocker.tar.gz
+    mode: '0755'
+
+- name: Extract and install lazydocker
+  unarchive:
+    src: /tmp/lazydocker.tar.gz
+    dest: /usr/local/bin
+    remote_src: yes
+    extra_opts: [--strip-components=1]

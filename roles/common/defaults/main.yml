@@ -42,3 +42,16 @@ common_pip_packages:
   - yamllint
   - ansible-lint
 venv_path: /opt/ansible-venv       # virtual environment path
+
+# Utilities configuration
+common_install_utilities: true
+common_run_verification: false
+
+# Architecture mapping
+architecture: "{{ 'amd64' if ansible_architecture == 'x86_64' else 'arm64' }}"
+dive_architecture: "{{ 'amd64' if ansible_architecture == 'x86_64' else 'arm64' }}"
+
+# Utility tool versions
+yq_version: "4.42.1"
+dive_version: "0.12.0"
+lazydocker_version: "0.23.1"

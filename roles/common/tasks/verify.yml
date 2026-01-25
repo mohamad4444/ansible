@@ -1,0 +1,62 @@
+---
+- name: Verify installations
+  shell: |
+    echo "Tool Versions:"
+    kubectl version --client 2>/dev/null | grep -oP 'GitVersion:"\K[^"]+' || echo "kubectl: not installed"
+    minikube version 2>/dev/null | grep -oP 'v[0-9.]+' || echo "minikube: not installed"
+    helm version --short 2>/dev/null || echo "helm: not installed"
+    helmfile --version 2>/dev/null || echo "helmfile: not installed"
+    kluctl version 2>/dev/null | grep -oP 'version \K[0-9.]+' || echo "kluctl: not installed"
+    stern --version 2>/dev/null || echo "stern: not installed"
+    kind --version 2>/dev/null || echo "kind: not installed"
+    skaffold version 2>/dev/null | grep -oP 'v[0-9.]+' || echo "skaffold: not installed"
+    terraform version 2>/dev/null | head -1 || echo "terraform: not installed"
+    aws --version 2>/dev/null | grep -oP 'aws-cli/\K[0-9.]+' || echo "aws: not installed"
+    docker --version 2>/dev/null || echo "docker: not installed"
+    docker-compose --version 2>/dev/null || echo "docker-compose: not installed"
+    make --version 2>/dev/null | head -1 || echo "make: not installed"
+  register: versions
+  changed_when: false
+
+- name: Display setup completion message
+  debug:
+    msg: |
+      Complete DevOps/Kubernetes environment setup complete!
+      
+      Installed tools:
+      - Container: Docker, Docker Compose, Docker buildx, dive, ctop, lazydocker, hadolint
+      - Kubernetes: kubectl, minikube, kind, k9s, stern, kubectx/kubens, kustomize
+      - GitOps: Kluctl, Helm, Helmfile, ArgoCD CLI
+      - Dev Tools: tilt, skaffold
+      - Cloud: AWS CLI, Terraform, Vault
+      - Utilities: make, jq, yq, shellcheck, tree, htop, tmux
+      
+      Kluctl Features:
+      - Declarative Kubernetes deployments
+      - Templating with Jinja2
+      - Multi-environment support
+      - Helm chart integration
+      - Kustomize support
+      - GitOps workflows
+      - Dry-run and diff capabilities
+      
+      User '{{ ansible_user }}' has been added to the docker group.
+      Logout and login again or run 'newgrp docker' for group changes to take effect.
+      
+      Common commands:
+      - Kluctl deploy: kluctl deploy -t dev --yes
+      - Kluctl diff: kluctl diff -t dev
+      - Start Minikube: minikube start
+      - Create Kind cluster: kind create cluster --name dev
+      - View logs: stern <pod-name> -n <namespace>
+      - Switch context: kubectx
+      - Switch namespace: kubens
+      - Docker cleanup: docker system prune -a
+      
+      Verification:
+      {{ versions.stdout_lines | join('\n') }}
+      
+      Example Kluctl project created at: ~/projects/kluctl-example
+      Helper functions added to: ~/.k8s-helpers.sh
+      
+      Environment ready for GitOps and Kubernetes development!
