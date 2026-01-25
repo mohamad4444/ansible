@@ -1,0 +1,9 @@
+---
+- import_tasks: aws.yml
+  when: install_aws_cli | default(true)
+
+- import_tasks: terraform.yml
+  when: install_terraform | default(true)
+
+- import_tasks: vault.yml
+  when: install_vault | default(true)

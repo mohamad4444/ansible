@@ -1,0 +1,28 @@
+---
+- name: Download Terraform
+  get_url:
+    url: "https://releases.hashicorp.com/terraform/{{ terraform_version }}/terraform_{{ terraform_version }}_linux_{{ architecture }}.zip"
+    dest: /tmp/terraform.zip
+
+- name: Extract and install Terraform
+  unarchive:
+    src: /tmp/terraform.zip
+    dest: /usr/local/bin
+    remote_src: yes
+
+- name: Ensure terraform is executable
+  file:
+    path: /usr/local/bin/terraform
+    mode: '0755'
+
+- name: Check if Terraform autocomplete is already installed
+  ansible.builtin.shell: grep -q 'terraform' ~/.bashrc
+  register: terraform_completion_check
+  ignore_errors: yes
+  changed_when: false
+
+- name: Install Terraform completion
+  ansible.builtin.shell: /usr/local/bin/terraform -install-autocomplete
+  args:
+    executable: /bin/bash
+  when: terraform_completion_check.rc != 0

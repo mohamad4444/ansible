@@ -1,0 +1,16 @@
+---
+- name: Download Vault
+  get_url:
+    url: "https://releases.hashicorp.com/vault/{{ vault_version }}/vault_{{ vault_version }}_linux_{{ architecture }}.zip"
+    dest: /tmp/vault.zip
+
+- name: Extract and install Vault
+  unarchive:
+    src: /tmp/vault.zip
+    dest: /usr/local/bin
+    remote_src: yes
+
+- name: Ensure Vault is executable
+  file:
+    path: /usr/local/bin/vault
+    mode: '0755'

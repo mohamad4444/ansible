@@ -1,0 +1,14 @@
+---
+# Default versions for cloud tools
+architecture: "{{ 'amd64' if ansible_architecture == 'x86_64' else 'arm64' }}"
+
+# AWS CLI
+install_aws_cli: true
+
+# Terraform
+install_terraform: true
+terraform_version: "1.7.3"
+
+# Vault
+install_vault: true
+vault_version: "1.15.5"
