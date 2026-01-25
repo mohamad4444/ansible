@@ -2,9 +2,9 @@
   become: true
   roles:
     - preflight       # Update system packages first
-    - users          # Create system users first
     - common         # Base packages and utilities
-    - docker         # Docker installation
+    - docker         # Docker installation (must be before users role)
+    - users          # Create system users (depends on docker group)
     - k8s            # Kubernetes tools
     - devops_tools   # GitOps and DevOps tools
     - cloud          # Cloud provider tools
