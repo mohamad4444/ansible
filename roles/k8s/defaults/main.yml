@@ -1,39 +1,27 @@
 ---
-# Common role defaults
+# Architecture mapping
+architecture: "{{ 'amd64' if ansible_architecture == 'x86_64' else 'arm64' }}"
 
-# Whether to install base system packages
+# Common packages configuration
 common_install_packages: true
-
-# Base packages to install
 common_packages:
   - python3
   - python3-pip
-  - python3-devel
   - git
   - curl
   - wget
   - vim
   - nano
   - bash-completion
-  - bind-utils
   - net-tools
   - socat
   - conntrack
-  - iproute-tc
   - htop
   - tree
   - tmux
   - make
   - gcc
-  - gcc-c++
-  - openssl-devel
-  - libffi-devel
-  - zlib-devel
-  - bzip2-devel
-  - readline-devel
-  - sqlite-devel
-  - xz-devel
-  - ncurses-devel
+  - openssl
   - rsync
   - unzip
   - tar
@@ -42,7 +30,18 @@ common_packages:
   - lsof
   - jq
   - gettext
-
-# Pip tools to install system-wide
+  
 common_pip_packages:
   - yamllint
+
+# K8s tools configuration
+install_kubectl: true
+kubectl_version: "stable"
+
+install_minikube: true
+
+install_k8s_tools: true
+stern_version: "1.28.0"
+k9s_version: "0.31.9"
+kubectx_version: "0.9.5"
+kind_version: "0.22.0"

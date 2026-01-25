@@ -1,0 +1,12 @@
+---
+- name: Download Minikube binary
+  get_url:
+    url: "https://storage.googleapis.com/minikube/releases/latest/minikube-linux-{{ architecture }}"
+    dest: /usr/local/bin/minikube
+    mode: '0755'
+
+- name: Install Minikube bash completion
+  shell: |
+    /usr/local/bin/minikube completion bash > /etc/bash_completion.d/minikube
+  args:
+    creates: /etc/bash_completion.d/minikube

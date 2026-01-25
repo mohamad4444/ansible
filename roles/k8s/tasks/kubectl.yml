@@ -1,0 +1,20 @@
+---
+- name: Get latest kubectl version
+  shell: |
+    curl -L -s https://dl.k8s.io/release/stable.txt
+  register: kubectl_latest_version
+  changed_when: false
+  when: kubectl_version == "stable"
+
+- name: Download kubectl binary
+  get_url:
+    url: "https://dl.k8s.io/release/{{ kubectl_latest_version.stdout if kubectl_version == 'stable' else 'v' + kubectl_version }}/bin/linux/{{ architecture }}/kubectl"
+    dest: /usr/local/bin/kubectl
+    mode: '0755'
+
+- name: Install kubectl bash completion
+  shell: |
+    /usr/local/bin/kubectl completion bash > /etc/bash_completion.d/kubectl
+    /usr/local/bin/kubectl completion zsh > /usr/local/share/zsh/site-functions/_kubectl 2>/dev/null || true
+  args:
+    creates: /etc/bash_completion.d/kubectl
