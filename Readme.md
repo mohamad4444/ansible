@@ -64,7 +64,20 @@ ansible/
 
 ## Roles Overview
 
+### 🚀 preflight
+Updates system packages before other roles run.
+
+**Features**: Updates package cache, optional package upgrade, installs essential packages
+
+```yaml
+preflight_update_cache: true
+preflight_upgrade_packages: false
+```
+
+---
+
 ### 🔐 users
+
 Creates system users with fine-grained sudo permissions.
 
 **Default users**: `deploy` (CI/CD), `jenkins` (automation)
