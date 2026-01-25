@@ -24,12 +24,6 @@
     - ansible_os_family in ["RedHat", "Fedora"]
     - common_install_packages | default(true)
 
-- name: Install pip packages
-  ansible.builtin.pip:
-    name: "{{ common_pip_packages }}"
-    executable: pip3
-  when: common_pip_packages | default([]) | length > 0
-
 # Import K8s tool installation tasks
 - import_tasks: kubectl.yml
   when: install_kubectl | default(true)
