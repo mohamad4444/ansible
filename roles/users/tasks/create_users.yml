@@ -1,0 +1,27 @@
+---
+- name: Create system users
+  user:
+    name: "{{ item.name }}"
+    comment: "{{ item.comment | default(omit) }}"
+    shell: "{{ item.shell | default(users_default_shell) }}"
+    groups: "{{ item.groups | default([]) | join(',') }}"
+    append: yes
+    create_home: "{{ item.create_home | default(true) }}"
+    state: present
+  loop: "{{ system_users }}"
+  when: 
+    - system_users is defined
+    - system_users | length > 0
+
+- name: Ensure .ssh directory exists for users
+  file:
+    path: "/home/{{ item.name }}/.ssh"
+    state: directory
+    owner: "{{ item.name }}"
+    group: "{{ item.name }}"
+    mode: '0700'
+  loop: "{{ system_users }}"
+  when:
+    - system_users is defined
+    - item.ssh_keys is defined
+    - item.ssh_keys | length > 0

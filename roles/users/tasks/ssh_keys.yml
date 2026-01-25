@@ -1,0 +1,10 @@
+---
+- name: Add SSH authorized keys for users
+  authorized_key:
+    user: "{{ item.0.name }}"
+    key: "{{ item.1 }}"
+    state: present
+  loop: "{{ system_users | subelements('ssh_keys', skip_missing=True) }}"
+  when:
+    - system_users is defined
+    - users_manage_ssh_keys | default(true)

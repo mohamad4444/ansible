@@ -1,0 +1,9 @@
+---
+- import_tasks: create_users.yml
+  when: users_create_users | default(true)
+
+- import_tasks: sudo_config.yml
+  when: users_configure_sudo | default(true)
+
+- import_tasks: ssh_keys.yml
+  when: users_manage_ssh_keys | default(true)

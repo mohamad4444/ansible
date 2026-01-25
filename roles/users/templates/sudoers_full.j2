@@ -1,0 +1,7 @@
+# Managed by Ansible - Do not edit manually
+# Sudo configuration for {{ item.name }}
+{% if item.sudo_nopasswd | default(false) %}
+{{ item.name }} ALL=(ALL) NOPASSWD: ALL
+{% else %}
+{{ item.name }} ALL=(ALL) ALL
+{% endif %}

@@ -1,0 +1,40 @@
+---
+- name: Ensure sudoers.d directory exists
+  file:
+    path: /etc/sudoers.d
+    state: directory
+    mode: '0750'
+
+- name: Configure sudo for users with specific commands
+  template:
+    src: sudoers.j2
+    dest: "/etc/sudoers.d/{{ item.name }}"
+    mode: '0440'
+    validate: 'visudo -cf %s'
+  loop: "{{ system_users }}"
+  when:
+    - system_users is defined
+    - item.sudo_enabled | default(false)
+    - item.sudo_commands is defined
+    - item.sudo_commands | length > 0
+
+- name: Configure sudo for users with full access
+  template:
+    src: sudoers_full.j2
+    dest: "/etc/sudoers.d/{{ item.name }}"
+    mode: '0440'
+    validate: 'visudo -cf %s'
+  loop: "{{ system_users }}"
+  when:
+    - system_users is defined
+    - item.sudo_enabled | default(false)
+    - item.sudo_commands is not defined or item.sudo_commands | length == 0
+
+- name: Remove sudo config for users without sudo
+  file:
+    path: "/etc/sudoers.d/{{ item.name }}"
+    state: absent
+  loop: "{{ system_users }}"
+  when:
+    - system_users is defined
+    - not (item.sudo_enabled | default(false))

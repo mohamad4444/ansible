@@ -1,0 +1,43 @@
+---
+# User management configuration
+
+# List of system users to create
+system_users:
+  - name: deploy
+    comment: "Deployment User for CI/CD"
+    shell: /bin/bash
+    groups: [docker]
+    create_home: true
+    sudo_enabled: true
+    sudo_nopasswd: false
+    sudo_commands: []  # Empty = full sudo with password
+    ssh_keys: []
+    
+  - name: jenkins
+    comment: "Jenkins CI User"
+    shell: /bin/bash
+    groups: [docker]
+    create_home: true
+    sudo_enabled: true
+    sudo_nopasswd: true
+    sudo_commands:
+      - /usr/bin/docker
+      - /usr/bin/docker-compose
+      - /usr/bin/kubectl
+      - /usr/bin/systemctl
+    ssh_keys: []
+
+# Whether to create users defined above
+users_create_users: true
+
+# Whether to configure sudo permissions
+users_configure_sudo: true
+
+# Whether to manage SSH keys
+users_manage_ssh_keys: true
+
+# Default shell for users
+users_default_shell: /bin/bash
+
+# Password authentication - set to false for security
+users_password_auth: false
