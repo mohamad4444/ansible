@@ -1,6 +1,10 @@
 - hosts: debian_servers
   become: true
   roles:
-    # - common
-    # - docker
-    - jenkins
+    - users          # Create system users first
+    - common         # Base packages and utilities
+    - docker         # Docker installation
+    - k8s            # Kubernetes tools
+    - devops_tools   # GitOps and DevOps tools
+    - cloud          # Cloud provider tools
+    - environment    # Configure shell environment last
