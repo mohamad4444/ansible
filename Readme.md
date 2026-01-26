@@ -2,17 +2,34 @@
 
 Comprehensive Ansible automation for DevOps, Kubernetes, Cloud infrastructure, and user management.
 
-> **Quick Start**: New to this project? Start with [Getting Started Guide](docs/GETTING_STARTED.md)
+## Table of Contents
+
+- [Ansible DevOps Automation](#ansible-devops-automation)
+  - [Table of Contents](#table-of-contents)
+  - [Features](#features)
+  - [Quick Start](#quick-start)
+  - [Useful Commands](#useful-commands)
+    - [Connection Check](#connection-check)
+    - [Full Installation](#full-installation)
+    - [Dry Run (Check Mode)](#dry-run-check-mode)
+    - [Verification](#verification)
+    - [Install Specific Tags](#install-specific-tags)
+  - [Roles Overview](#roles-overview)
+  - [Documentation](#documentation)
+  - [Project Structure](#project-structure)
+  - [Roadmap](#roadmap)
+    - [Project Status](#project-status)
+    - [Operating System Support Note](#operating-system-support-note)
 
 ## Features
 
-✨ **Multi-OS Support** - Debian/Ubuntu and RHEL/Fedora  
-🔐 **User Management** - Fine-grained sudo control and SSH keys  
-☁️ **Cloud Tools** - AWS CLI, Terraform, Vault  
-☸️ **Kubernetes** - kubectl, Helm, Kluctl, ArgoCD, Minikube  
-🐳 **Containers** - Docker, Docker Compose, dive, lazydocker  
-🛠️ **DevOps Tools** - GitOps stack with Helm, Kluctl, Tilt  
-🎨 **Environment** - Shell aliases, completions, helper functions
+- ✨ **Multi-OS Support** - Debian/Ubuntu (Primary) and RHEL/Fedora (Legacy/Partial)
+- 🔐 **User Management** - Fine-grained sudo control and SSH keys
+- ☁️ **Cloud Tools** - AWS CLI, Terraform, Vault
+- ☸️ **Kubernetes** - kubectl, Helm, Kluctl, ArgoCD, Minikube
+- 🐳 **Containers** - Docker, Docker Compose, dive, lazydocker
+- 🛠️ **DevOps Tools** - GitOps stack with Helm, Kluctl, Tilt
+- 🎨 **Environment** - Shell aliases, completions, helper functions
 
 ## Quick Start
 
@@ -23,251 +40,90 @@ sudo apt install ansible git
 # 2. Clone repository
 git clone <repo-url> ansible && cd ansible
 
-# 3. Configure inventory
-nano inventory/production/hosts.ini
-
-# 4. Run playbook
-ansible-playbook playbooks/site.yml -i inventory/production
+# 3. Run playbook
+ansible-playbook playbooks/site.yml -i inventory/development/hosts.ini
 ```
 
-**Full setup guide**: [docs/GETTING_STARTED.md](docs/GETTING_STARTED.md)
+> **Note**: This setup uses the `inventory/development` environment by default.
+
+## Useful Commands
+
+Here are some common commands to manage your infrastructure using the development inventory.
+
+### Connection Check
+Verify connectivity to all hosts:
+```bash
+ansible -i inventory/development/hosts.ini all -m ping
+```
+
+### Full Installation
+Run the main playbook to configure everything:
+```bash
+ansible-playbook -i inventory/development/hosts.ini playbooks/site.yml
+```
+
+### Dry Run (Check Mode)
+See what changes would be made without applying them:
+```bash
+ansible-playbook -i inventory/development/hosts.ini playbooks/site.yml --check
+```
+
+### Verification
+Run tests to verify the installation:
+```bash
+ansible-playbook -i inventory/development/hosts.ini playbooks/verify.yml
+```
+
+### Install Specific Tags
+Run only specific parts of the playbook (e.g., only docker and k8s):
+```bash
+ansible-playbook -i inventory/development/hosts.ini playbooks/site.yml --tags docker,k8s
+```
+
+## Roles Overview
+
+- **preflight**: Updates system package caches and installs essential packages before other roles run.
+- **users**: Creates system users with specific groups and fine-grained sudo permissions.
+- **environment**: Configures shell aliases (like `k` for `kubectl`), command completions, and helper functions.
+- **common**: Installs base utilities like `jq`, `yq`, `curl`, and `git`.
+- **docker**: Sets up Docker engine and Docker Compose.
+- **k8s**: Installs Kubernetes tools including `kubectl`, `minikube`, `k9s`, and `stern`.
+- **devops_tools**: Sets up a GitOps stack with `helm`, `helmfile`, `kluctl`, and `argocd`.
+- **cloud**: Installs CLI tools for cloud providers, including AWS CLI, Terraform, and Vault.
+
+## Documentation
+
+- [Getting Started](docs/GETTING_STARTED.md): Initial setup & detailed installation guide.
+- [User Management](docs/USER_MANAGEMENT.md): How to add users and configure permissions.
+- [Configuration](docs/CONFIGURATION.md): Customizing tool versions and role behavior.
+- [Roles](docs/ROLES.md): Detailed documentation for each ansible role.
+- [Security](docs/SECURITY.md): Security features and best practices.
 
 ## Project Structure
 
 ```
 ansible/
-├── playbooks/
-│   ├── site.yml       # Main playbook
-│   └── verify.yml     # Verification playbook
-├── roles/
-│   ├── users/         # User management & sudo control
-│   ├── environment/   # Shell config & aliases
-│   ├── common/        # Base packages & utilities
-│   ├── docker/        # Docker & Docker Compose
-│   ├── k8s/           # Kubernetes tools
-│   ├── devops_tools/  # GitOps tools (Helm, Kluctl, etc.)
-│   └── cloud/         # AWS CLI, Terraform, Vault
-├── inventory/         # Server inventories
-├── group_vars/        # Configuration variables
-└── docs/              # Documentation
+├── playbooks/         # Entry points (site.yml, verify.yml)
+├── roles/             # Logic for each component (k8s, docker, etc.)
+├── inventory/         # Host definitions (development, production)
+├── group_vars/        # Global configuration variables
+└── docs/              # Detailed documentation
 ```
 
-## Documentation
+## Roadmap
 
-| Document                                   | Description                  |
-| ------------------------------------------ | ---------------------------- |
-| [Getting Started](docs/GETTING_STARTED.md) | Initial setup & installation |
-| [User Management](docs/USER_MANAGEMENT.md) | Managing users & permissions |
-| [Configuration](docs/CONFIGURATION.md)     | Customizing installations    |
-| [Roles](docs/ROLES.md)                     | Detailed role documentation  |
-| [Security](docs/SECURITY.md)               | Security best practices      |
+This project is actively developed to provide a comprehensive DevOps workstation and server setup.
 
-## Roles Overview
+### Project Status
 
-### 🚀 preflight
-Updates system packages before other roles run.
+- ✅ **Full DevOps & Kubernetes Setup**: Complete automated setup for local development.
+- ✅ **Modular Architecture**: Reusable and expandable Ansible roles.
+- ✅ **VPS Security**: Basic hardening, SSH key management, and sudo configuration.
+- ⬜ **Advanced Security**: Prevent DDOS attacks, Fail2Ban configuration, and advanced firewall rules.
+- ⬜ **Expanded Monitoring**: Prometheus/Grafana stack integration.
 
-**Features**: Updates package cache, optional package upgrade, installs essential packages
+### Operating System Support Note
 
-```yaml
-preflight_update_cache: true
-preflight_upgrade_packages: false
-```
-
----
-
-### 🔐 users
-
-Creates system users with fine-grained sudo permissions.
-
-**Default users**: `deploy` (CI/CD), `jenkins` (automation)
-
-```yaml
-system_users:
-  - name: deploy
-    groups: [docker]
-    sudo_enabled: true
-```
-
-📖 [User Management Guide](docs/USER_MANAGEMENT.md)
-
----
-
-### 🎨 environment
-Configures shell environment with aliases and helper functions.
-
-**Features**: kubectl aliases (`k`, `kg`, `kd`), helper functions (`kexec`, `cluster-info`), completions
-
-```yaml
-environment_users: ["{{ ansible_user }}", "deploy"]
-```
-
----
-
-### 📦 common
-Installs base packages and CLI utilities.
-
-**Includes**: yq, jq, hadolint, shellcheck, dive, ctop, lazydocker
-
----
-
-### 🐳 docker
-Installs Docker and Docker Compose.
-
----
-
-### ☸️ k8s
-Installs Kubernetes tools.
-
-**Includes**: kubectl, minikube, kind, k9s, stern, kubectx/kubens, skaffold
-
-```yaml
-install_kubectl: true
-kubectl_version: "stable"
-```
-
----
-
-### 🛠️ devops_tools
-Installs GitOps and DevOps tools.
-
-**Includes**: Helm, Helmfile, Kluctl, Kustomize, Tilt, ArgoCD CLI
-
-```yaml
-install_helm: true
-install_kluctl: true
-```
-
----
-
-### ☁️ cloud
-Installs cloud provider tools.
-
-**Includes**: AWS CLI v2, Terraform, HashiCorp Vault
-
-```yaml
-install_terraform: true
-terraform_version: "1.7.3"
-```
-
-📖 [Full Role Documentation](docs/ROLES.md)
-
-## Usage Examples
-
-### Full Installation
-```bash
-ansible-playbook playbooks/site.yml -i inventory/production
-```
-
-### Dry Run (Check Mode)
-```bash
-ansible-playbook playbooks/site.yml -i inventory/production --check
-```
-
-### Verify Installation
-```bash
-ansible-playbook playbooks/verify.yml -i inventory/production
-```
-
-### Install Specific Roles
-```bash
-ansible-playbook playbooks/site.yml -i inventory/production --tags docker,k8s
-```
-
-## Configuration
-
-### Skip Unnecessary Tools
-
-```yaml
-# group_vars/all/main.yml
-install_minikube: false
-install_vault: false
-```
-
-### Add Custom Users
-
-```yaml
-system_users:
-  - name: developer
-    groups: [docker, sudo]
-    sudo_enabled: true
-```
-
-### Customize Versions
-
-```yaml
-terraform_version: "1.6.0"
-helm_version: "3.13.0"
-```
-
-📖 [Configuration Guide](docs/CONFIGURATION.md)
-
-## Security
-
-- ✅ Least privilege sudo access
-- ✅ SSH key authentication
-- ✅ Separate users for different purposes
-- ✅ Command-specific sudo permissions
-- ✅ No root login
-
-📖 [Security Best Practices](docs/SECURITY.md)
-
-## Requirements
-
-- Ansible 2.9+
-- Target: Debian 10+, Ubuntu 20.04+, RHEL 8+, Fedora 35+
-- SSH access with sudo privileges
-- Python 3 on target machines
-
-## Verification
-
-After installation, verify on your server:
-
-```bash
-# Check versions
-docker --version
-kubectl version --client
-helm version
-terraform version
-
-# Test aliases
-k version          # kubectl
-d ps              # docker
-
-# Test helper functions
-cluster-info
-kexec --help
-```
-
-## Troubleshooting
-
-| Issue                  | Solution                                   |
-| ---------------------- | ------------------------------------------ |
-| SSH connection fails   | Check SSH keys: `ssh-copy-id user@server`  |
-| Sudo password required | Add `ansible_become_password` to inventory |
-| Tools not in PATH      | Reload shell: `source ~/.bashrc`           |
-| User not created       | Check role output: `--tags users -v`       |
-
-📖 [Full Troubleshooting Guide](docs/GETTING_STARTED.md#troubleshooting)
-
-## Contributing
-
-Contributions welcome! Please:
-1. Test changes with `--check` mode
-2. Update relevant documentation
-3. Follow existing code style
-4. Submit pull request
-
-## License
-
-MIT
-
-## Support
-
-- 📚 [Documentation](docs/)
-- 🐛 [Issues](../../issues)
-- 💬 [Discussions](../../discussions)
-
----
-
-**Made with ❤️ for DevOps teams**
+> **Important**: This project was initially developed for **Rocky Linux/RHEL/Fedora** systems. However, due to challenges with Docker support and package management on those platforms, the primary development focus has shifted to **Debian/Ubuntu** systems.
+>
+> While some legacy configuration methods for RHEL/Fedora still exist in the codebase, they are **not fully supported** at this time. We recommend using Debian 11+ or Ubuntu 20.04+ for the best experience.
