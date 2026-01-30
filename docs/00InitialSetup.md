@@ -1,8 +1,3 @@
-# Ansible Setup Tutorial on Windows 10 with VPS
-Our local machine is on windows 10 and our VPS is using rocky linux
-## Explanation about Ansible workflow
-Ansible must be installed on host and it connects to VPS via ssh
-## Steps
 ### Installing WSL and Ubuntu on windows 10
 1. `wsl --install` installing wsl on windows 10
 2. opening ubuntu from search bar
@@ -29,12 +24,5 @@ sudo apt install -y ansible
 #Verify
 ansible --version
 ```
-### Creating Ansible Project 
+### Creating Ansible Project
 9. basically this git repo
-
-# RoadMap
-- [x] Full Devops,Kubernetes setup for development
-- [ ] Add Security to vps
-- [ ] prevent DDOS attacks
-- [ ] Add roles
-- [ ] make it more Modular and expandable
