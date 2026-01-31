@@ -1,38 +1,56 @@
-# Ansible Setup Tutorial on Windows 10 with VPS
-Our local machine is on windows 10 and our VPS is using rocky linux
-## Explanation about Ansible workflow
-Ansible must be installed on host and it connects to VPS via ssh
-## Steps
-### Installing WSL and Ubuntu on windows 10
-1. `wsl --install` installing wsl on windows 10
-2. opening ubuntu from search bar
-### Generating SSL
-3. Generate SSL on local machine `ssh-keygen -t ed25519 -C "ansible@local"`
-4. keys would exist on 
-```
-~/.ssh/id_ed25519
-~/.ssh/id_ed25519.pub
-```
-### Copying SSH to VPS
-5. Copy SSH key to the VPS
-```ssh-copy-id YOUR_VPS_USERNAME@YOUR_VPS_IP```
-6. Test VPS
-```ssh rocky@mahamid.net```
-7. Exit
-```exit```
-### Installing Ansible
-8. 
-```
-sudo apt update
-sudo apt install -y ansible
+# Ansible Infrastructure Project
 
-#Verify
-ansible --version
-```
-### Creating Ansible Project 
-9. basically this git repo
+This repository manages our server infrastructure (Rocky Linux VPS) using Ansible.
 
-# RoadMap
+## Getting Started
+
+If you are setting up this project for the first time, please follow our Setup Guide:
+
+**[Setup Guide](docs/setup.md)**
+*(Contains instructions for WSL/Linux installation, SSH configuration, and Ansible setup)*
+
+## Essential Commands
+
+Once you have completed the setup, you can use the following commands to manage the infrastructure.
+
+### Check Connectivity (Ping Pong)
+Test that Ansible can communicate with all hosts defined in your inventory:
+
+```bash
+ansible all -m ping
+```
+
+*Expected output should show `SUCCESS` and `"ping": "pong"` for your hosts.*
+
+### Starting Ansible Playbooks
+To run the main playbook (or any specific playbook), use the `ansible-playbook` command:
+
+```bash
+# Run the main site playbook (example)
+ansible-playbook playbooks/site.yml
+
+# Run with a specific inventory file
+ansible-playbook -i inventory/development/hosts.ini playbooks/site.yml
+
+# Limit execution to a specific host
+ansible-playbook playbooks/site.yml --limit specific_host
+
+# Check syntax before running
+ansible-playbook --syntax-check playbooks/site.yml
+```
+
+### Basic Ad-Hoc Commands
+You can run simple module commands directly from the CLI without writing a playbook:
+
+```bash
+# Check uptime on all servers
+ansible all -a "uptime"
+
+# Gather facts about hosts
+ansible all -m setup
+```
+
+## Roadmap
 - [x] Full Devops,Kubernetes setup for development
 - [ ] Add Security to vps
 - [ ] prevent DDOS attacks
