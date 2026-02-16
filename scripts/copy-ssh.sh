@@ -4,4 +4,4 @@
 cp -r /mnt/c/Users/$USER/.ssh ~/
 chmod 700 ~/.ssh
 chmod 600 ~/.ssh/*
-echo "SSH keys copied from Windows to WSL"
+echo "✅ SSH keys copied from Windows to WSL"
