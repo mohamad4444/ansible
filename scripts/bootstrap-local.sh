@@ -6,10 +6,10 @@ set -e
 KEY="$HOME/.ssh/id_ed25519"
 
 if [ ! -f "$KEY" ]; then
-  echo "No SSH key found, generating one..."
+  echo "🔑 No SSH key found, generating one..."
   ssh-keygen -t ed25519 -C "ansible@local" -f "$KEY" -N ""
 else
-  echo "SSH key already exists"
+  echo "✅ SSH key already exists"
 fi
 
 echo "Public key:"
