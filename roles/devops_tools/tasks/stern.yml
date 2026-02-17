@@ -1,0 +1,25 @@
+---
+- name: Download and install stern
+  block:
+    - name: Download stern
+      get_url:
+        url: "https://github.com/stern/stern/releases/download/v{{ stern_version }}/stern_{{ stern_version }}_linux_amd64.tar.gz"
+        dest: /tmp/stern.tar.gz
+
+    - name: Extract stern
+      shell: |
+        tar -xzf /tmp/stern.tar.gz -C /tmp stern
+        mv /tmp/stern /usr/local/bin/
+      args:
+        creates: /usr/local/bin/stern
+
+    - name: Set executable permission
+      file:
+        path: /usr/local/bin/stern
+        mode: "0755"
+        owner: root
+        group: root
+  rescue:
+    - name: Debug failure
+      debug:
+        msg: "Failed to install stern"

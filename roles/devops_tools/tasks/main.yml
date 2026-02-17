@@ -1,17 +1,32 @@
 - import_tasks: helm.yml
-  when: install_helm | default(false)
+  when: "'helm' in devops_tools_enabled"
 
 - import_tasks: helmfile.yml
-  when: install_helmfile | default(false)
+  when: "'helmfile' in devops_tools_enabled"
 
 - import_tasks: kustomize.yml
-  when: install_kustomize | default(false)
+  when: "'kustomize' in devops_tools_enabled"
 
 - import_tasks: tilt.yml
-  when: install_tilt | default(false)
+  when: "'tilt' in devops_tools_enabled"
 
 - import_tasks: kluctl.yml
-  when: install_kluctl | default(false)
+  when: "'kluctl' in devops_tools_enabled"
 
 - import_tasks: argocd.yml
-  when: install_argocd | default(false)
+  when: "'argocd' in devops_tools_enabled"
+
+- import_tasks: stern.yml
+  when: "'stern' in devops_tools_enabled"
+
+- import_tasks: k9s.yml
+  when: "'k9s' in devops_tools_enabled"
+
+- import_tasks: kubectx.yml
+  when: "'kubectx' in devops_tools_enabled"
+
+- import_tasks: skaffold.yml
+  when: "'skaffold' in devops_tools_enabled"
+
+- import_tasks: talosctl.yml
+  when: "'talosctl' in devops_tools_enabled"

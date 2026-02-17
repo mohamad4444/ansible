@@ -1,0 +1,6 @@
+---
+- name: Download kind binary
+  get_url:
+    url: "https://github.com/kubernetes-sigs/kind/releases/download/v{{ kind_version }}/kind-linux-{{ architecture }}"
+    dest: /usr/local/bin/kind
+    mode: "0755"

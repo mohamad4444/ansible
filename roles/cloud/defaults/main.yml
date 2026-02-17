@@ -1,6 +1,6 @@
 ---
 # Default versions for cloud tools
-architecture: "{{ 'amd64' if ansible_architecture == 'x86_64' else 'arm64' }}"
+architecture: "{{ 'amd64' if ansible_facts['architecture'] == 'x86_64' else 'arm64' }}"
 
 # AWS CLI
 install_aws_cli: true

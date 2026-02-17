@@ -37,7 +37,7 @@ versions:
   lazydocker: "0.24.4"
 
 # Architecture handling - map to correct naming for binary downloads
-architecture: "{{ 'amd64' if ansible_architecture == 'x86_64' else 'arm64' }}"
+architecture: "{{ 'amd64' if ansible_facts['architecture'] == 'x86_64' else 'arm64' }}"
 
 # Individual version overrides (to match role variable names)
 helm_version: "4.0.5"

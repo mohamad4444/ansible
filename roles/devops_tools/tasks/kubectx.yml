@@ -1,0 +1,22 @@
+---
+- name: Install kubectx and kubens
+  git:
+    repo: "https://github.com/ahmetb/kubectx.git"
+    dest: /opt/kubectx
+    version: "v{{ kubectx_version }}"
+
+- name: Create symlinks for kubectx and kubens
+  file:
+    src: "/opt/kubectx/{{ item }}"
+    dest: "/usr/local/bin/{{ item }}"
+    state: link
+  with_items:
+    - kubectx
+    - kubens
+
+- name: Install kubectx completion
+  shell: |
+    cp /opt/kubectx/completion/kubectx.bash /etc/bash_completion.d/kubectx
+    cp /opt/kubectx/completion/kubens.bash /etc/bash_completion.d/kubens
+  args:
+    creates: /etc/bash_completion.d/kubectx

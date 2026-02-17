@@ -21,3 +21,11 @@ preflight_essential_packages:
   - wget
   - git
   - sudo
+
+preflight_essential_packages_arch:
+  - python
+  - python-pip
+  - curl
+  - wget
+  - git
+  - sudo

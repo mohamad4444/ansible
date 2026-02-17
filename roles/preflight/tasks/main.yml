@@ -4,21 +4,21 @@
     update_cache: yes
     cache_valid_time: 3600
   when:
-    - ansible_os_family == "Debian"
+    - ansible_facts['os_family'] == "Debian"
     - preflight_update_cache | default(true)
 
 - name: Upgrade all packages (Debian/Ubuntu)
   apt:
     upgrade: dist
   when:
-    - ansible_os_family == "Debian"
+    - ansible_facts['os_family'] == "Debian"
     - preflight_dist_upgrade | default(false)
 
 - name: Upgrade all packages to latest (Debian/Ubuntu)
   apt:
     upgrade: yes
   when:
-    - ansible_os_family == "Debian"
+    - ansible_facts['os_family'] == "Debian"
     - preflight_upgrade_packages | default(false)
     - not (preflight_dist_upgrade | default(false))
 
@@ -27,14 +27,14 @@
     name: "{{ preflight_essential_packages }}"
     state: present
   when:
-    - ansible_os_family == "Debian"
+    - ansible_facts['os_family'] == "Debian"
     - preflight_install_essentials | default(true)
 
 - name: Update dnf cache (RHEL/Fedora)
   dnf:
     update_cache: yes
   when:
-    - ansible_os_family in ["RedHat", "Fedora"]
+    - ansible_facts['os_family'] in ["RedHat", "Fedora"]
     - preflight_update_cache | default(true)
 
 - name: Upgrade all packages (RHEL/Fedora)
@@ -42,7 +42,7 @@
     name: "*"
     state: latest
   when:
-    - ansible_os_family in ["RedHat", "Fedora"]
+    - ansible_facts['os_family'] in ["RedHat", "Fedora"]
     - preflight_upgrade_packages | default(false)
 
 - name: Install essential packages (RHEL/Fedora)
@@ -50,29 +50,29 @@
     name: "{{ preflight_essential_packages }}"
     state: present
   when:
-    - ansible_os_family in ["RedHat", "Fedora"]
+    - ansible_facts['os_family'] in ["RedHat", "Fedora"]
     - preflight_install_essentials | default(true)
 
 - name: Update pacman cache (Arch Linux)
   community.general.pacman:
     update_cache: yes
   when:
-    - ansible_os_family == "Archlinux"
+    - ansible_facts['os_family'] == "Archlinux"
     - preflight_update_cache | default(true)
 
 - name: Upgrade all packages (Arch Linux)
   community.general.pacman:
     upgrade: yes
   when:
-    - ansible_os_family == "Archlinux"
+    - ansible_facts['os_family'] == "Archlinux"
     - preflight_upgrade_packages | default(false)
 
 - name: Install essential packages (Arch Linux)
   community.general.pacman:
-    name: "{{ preflight_essential_packages }}"
+    name: "{{ preflight_essential_packages_arch }}"
     state: present
   when:
-    - ansible_os_family == "Archlinux"
+    - ansible_facts['os_family'] == "Archlinux"
     - preflight_install_essentials | default(true)
 
 - name: Display preflight completion message
