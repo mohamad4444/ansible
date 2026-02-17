@@ -60,7 +60,7 @@
                 'aarch64': 'arm64',
                 'arm64': 'arm64'
               },
-              'architecture': "{{ architecture_map[ansible_architecture] | default('amd64') }}"
+              'architecture': "{{ architecture_map[ansible_facts['architecture']] | default('amd64') }}"
             })
           }}
 

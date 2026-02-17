@@ -29,6 +29,12 @@ To run the main playbook (or any specific playbook), use the `ansible-playbook` 
 # Run the main site playbook (example)
 ansible-playbook playbooks/site.yml
 
+# Run on LOCAL MACHINE (e.g., Laptop)
+ansible-playbook playbooks/local.yml --ask-become-pass
+
+# Run with a specific inventory file
+ansible-playbook -i inventory/development/hosts.ini playbooks/site.yml
+
 # Run with a specific inventory file
 ansible-playbook -i inventory/development/hosts.ini playbooks/site.yml
 

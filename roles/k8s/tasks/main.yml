@@ -5,14 +5,14 @@
     name: "{{ common_packages }}"
     state: present
     update_cache: yes
-  when: ansible_os_family == "Debian"
+  when: ansible_facts['os_family'] == "Debian"
 
 - name: Enable EPEL repository (RHEL/Fedora)
   ansible.builtin.dnf:
     name: epel-release
     state: present
-  when: 
-    - ansible_os_family in ["RedHat", "Fedora"]
+  when:
+    - ansible_facts['os_family'] in ["RedHat", "Fedora"]
     - common_install_packages | default(true)
 
 - name: Install essential system packages (RHEL/Fedora)
@@ -20,9 +20,16 @@
     name: "{{ common_packages }}"
     state: present
     update_cache: yes
-  when: 
-    - ansible_os_family in ["RedHat", "Fedora"]
+  when:
+    - ansible_facts['os_family'] in ["RedHat", "Fedora"]
     - common_install_packages | default(true)
+
+- name: Install essential system packages (Arch Linux)
+  community.general.pacman:
+    name: "{{ common_packages_arch }}"
+    state: present
+    update_cache: yes
+  when: ansible_facts['os_family'] == "Archlinux"
 
 # Import K8s tool installation tasks
 - import_tasks: kubectl.yml
@@ -31,5 +38,5 @@
 - import_tasks: minikube.yml
   when: install_minikube | default(true)
 
-- import_tasks: k8s_tools.yml
-  when: install_k8s_tools | default(true)
+- import_tasks: kind.yml
+  when: install_kind | default(true)

@@ -1,11 +1,21 @@
 - hosts: debian_servers
   become: true
+  pre_tasks:
+    - name: Read project version
+      ansible.builtin.set_fact:
+        project_version: "{{ lookup('file', '../VERSION') }}"
+      check_mode: false
+
+    - name: Display project version
+      ansible.builtin.debug:
+        msg: "Running Ansible Project Version: {{ project_version }}"
+
   roles:
-    - preflight       # Update system packages first
-    - common         # Base packages and utilities
-    - docker         # Docker installation (must be before users role)
-    - users          # Create system users (depends on docker group)
-    - k8s            # Kubernetes tools
-    - devops_tools   # GitOps and DevOps tools
-    - cloud          # Cloud provider tools
-    - environment    # Configure shell environment last
+    - preflight # Update system packages first
+    - common # Base packages and utilities
+    - docker # Docker installation (must be before users role)
+    - users # Create system users (depends on docker group)
+    - k8s # Kubernetes tools
+    - devops_tools # GitOps and DevOps tools
+    - cloud # Cloud provider tools
+    - environment # Configure shell environment last

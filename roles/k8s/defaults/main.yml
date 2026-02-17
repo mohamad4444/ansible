@@ -1,6 +1,6 @@
 ---
 # Architecture mapping
-architecture: "{{ 'amd64' if ansible_architecture == 'x86_64' else 'arm64' }}"
+architecture: "{{ 'amd64' if ansible_facts['architecture'] == 'x86_64' else 'arm64' }}"
 
 # Common packages configuration
 common_install_packages: true
@@ -30,7 +30,7 @@ common_packages:
   - lsof
   - jq
   - gettext
-  
+
 common_pip_packages:
   - yamllint
 
@@ -40,8 +40,5 @@ kubectl_version: "stable"
 
 install_minikube: true
 
-install_k8s_tools: true
-stern_version: "1.28.0"
-k9s_version: "0.31.9"
-kubectx_version: "0.9.5"
+install_kind: true
 kind_version: "0.22.0"

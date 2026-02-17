@@ -7,7 +7,7 @@
 
 - name: Download hadolint binary
   get_url:
-    url: "https://github.com/hadolint/hadolint/releases/latest/download/hadolint-Linux-{{ 'x86_64' if ansible_architecture == 'x86_64' else 'arm64' }}"
+    url: "https://github.com/hadolint/hadolint/releases/latest/download/hadolint-Linux-{{ 'x86_64' if ansible_facts['architecture'] == 'x86_64' else 'arm64' }}"
     dest: /usr/local/bin/hadolint
     mode: "0755"
 
@@ -15,19 +15,19 @@
   apt:
     name: shellcheck
     state: present
-  when: ansible_os_family == "Debian"
+  when: ansible_facts['os_family'] == "Debian"
 
 - name: Install shellcheck (RHEL/Fedora)
   dnf:
     name: ShellCheck
     state: present
-  when: ansible_os_family in ["RedHat", "Fedora"]
+  when: ansible_facts['os_family'] in ["RedHat", "Fedora"]
 
 - name: Install shellcheck (Arch Linux)
   community.general.pacman:
     name: shellcheck
     state: present
-  when: ansible_os_family == "Archlinux"
+  when: ansible_facts['os_family'] == "Archlinux"
 
 - name: Download dive binary
   get_url:

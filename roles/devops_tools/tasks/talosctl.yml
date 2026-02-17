@@ -1,0 +1,6 @@
+---
+- name: Download talosctl binary
+  get_url:
+    url: "https://github.com/siderolabs/talos/releases/download/v{{ talosctl_version }}/talosctl-linux-{{ architecture }}"
+    dest: /usr/local/bin/talosctl
+    mode: "0755"
