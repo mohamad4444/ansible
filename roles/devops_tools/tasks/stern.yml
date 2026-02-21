@@ -3,7 +3,7 @@
   block:
     - name: Download stern
       get_url:
-        url: "https://github.com/stern/stern/releases/download/v{{ stern_version }}/stern_{{ stern_version }}_linux_amd64.tar.gz"
+        url: "https://github.com/stern/stern/releases/download/v{{ versions.stern }}/stern_{{ versions.stern }}_linux_amd64.tar.gz"
         dest: /tmp/stern.tar.gz
 
     - name: Extract stern

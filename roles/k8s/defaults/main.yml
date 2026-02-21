@@ -1,7 +1,4 @@
 ---
-# Architecture mapping
-architecture: "{{ 'amd64' if ansible_facts['architecture'] == 'x86_64' else 'arm64' }}"
-
 # Common packages configuration
 common_install_packages: true
 common_packages:
@@ -36,9 +33,7 @@ common_pip_packages:
 
 # K8s tools configuration
 install_kubectl: true
-kubectl_version: "stable"
 
 install_minikube: true
 
 install_kind: true
-kind_version: "0.22.0"

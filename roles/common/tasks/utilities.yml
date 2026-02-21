@@ -1,7 +1,7 @@
 ---
 - name: Download yq binary
   get_url:
-    url: "https://github.com/mikefarah/yq/releases/download/v{{ yq_version }}/yq_linux_{{ architecture }}"
+    url: "https://github.com/mikefarah/yq/releases/download/v{{ versions.yq }}/yq_linux_{{ architecture }}"
     dest: /usr/local/bin/yq
     mode: "0755"
 
@@ -31,7 +31,7 @@
 
 - name: Download dive binary
   get_url:
-    url: "https://github.com/wagoodman/dive/releases/download/v{{ dive_version }}/dive_{{ dive_version }}_linux_{{ dive_architecture }}.tar.gz"
+    url: "https://github.com/wagoodman/dive/releases/download/v{{ versions.dive }}/dive_{{ versions.dive }}_linux_{{ architecture }}.tar.gz"
     dest: /tmp/dive.tar.gz
     mode: "0644"
 
@@ -51,7 +51,7 @@
 
 - name: Download lazydocker binary
   ansible.builtin.get_url:
-    url: "https://github.com/jesseduffield/lazydocker/releases/download/v{{ lazydocker_version }}/lazydocker_{{ lazydocker_version }}_Linux_x86_64.tar.gz"
+    url: "https://github.com/jesseduffield/lazydocker/releases/download/v{{ versions.lazydocker }}/lazydocker_{{ versions.lazydocker }}_Linux_x86_64.tar.gz"
     dest: /tmp/lazydocker.tar.gz
     mode: "0755"
 

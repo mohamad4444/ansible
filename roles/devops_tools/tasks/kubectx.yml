@@ -3,7 +3,7 @@
   git:
     repo: "https://github.com/ahmetb/kubectx.git"
     dest: /opt/kubectx
-    version: "v{{ kubectx_version }}"
+    version: "v{{ versions.kubectx }}"
 
 - name: Create symlinks for kubectx and kubens
   file:
