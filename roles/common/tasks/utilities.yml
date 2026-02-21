@@ -17,18 +17,6 @@
     state: present
   when: ansible_facts['os_family'] == "Debian"
 
-- name: Install shellcheck (RHEL/Fedora)
-  dnf:
-    name: ShellCheck
-    state: present
-  when: ansible_facts['os_family'] in ["RedHat", "Fedora"]
-
-- name: Install shellcheck (Arch Linux)
-  community.general.pacman:
-    name: shellcheck
-    state: present
-  when: ansible_facts['os_family'] == "Archlinux"
-
 - name: Download dive binary
   get_url:
     url: "https://github.com/wagoodman/dive/releases/download/v{{ versions.dive }}/dive_{{ versions.dive }}_linux_{{ architecture }}.tar.gz"

@@ -1,5 +1,5 @@
 ---
-- name: Install prerequisite packages for Docker (Debian)
+- name: Install prerequisite packages for Docker
   ansible.builtin.apt:
     name:
       - ca-certificates
@@ -8,45 +8,30 @@
       - lsb-release
     state: present
     update_cache: yes
-  when: ansible_facts['os_family'] == "Debian"
-
-- name: Install prerequisite packages for Docker (Arch Linux)
-  community.general.pacman:
-    name:
-      - ca-certificates
-      - curl
-      - gnupg
-    state: present
-    update_cache: yes
-  when: ansible_facts['os_family'] == "Archlinux"
 
 - name: Create directory for Docker GPG key
   ansible.builtin.file:
     path: /etc/apt/keyrings
     state: directory
     mode: "0755"
-  when: ansible_facts['os_family'] == "Debian"
 
 - name: Download Docker GPG key to keyring
   ansible.builtin.get_url:
     url: https://download.docker.com/linux/debian/gpg
     dest: /etc/apt/keyrings/docker.gpg
     mode: "0644"
-  when: ansible_facts['os_family'] == "Debian"
 
 - name: Add Docker APT repository
   ansible.builtin.apt_repository:
     repo: "deb [arch=amd64 signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/debian {{ ansible_lsb.codename }} stable"
     state: present
     filename: docker
-  when: ansible_facts['os_family'] == "Debian"
 
 - name: Update apt cache
   ansible.builtin.apt:
     update_cache: yes
-  when: ansible_facts['os_family'] == "Debian"
 
-- name: Install Docker packages (Debian)
+- name: Install Docker packages
   ansible.builtin.apt:
     name:
       - docker-ce
@@ -56,17 +41,6 @@
       - docker-compose-plugin
     state: present
     update_cache: yes
-  when: ansible_facts['os_family'] == "Debian"
-
-- name: Install Docker packages (Arch Linux)
-  community.general.pacman:
-    name:
-      - docker
-      - docker-compose
-      - docker-buildx
-    state: present
-    update_cache: yes
-  when: ansible_facts['os_family'] == "Archlinux"
 
 - name: Enable and start Docker service
   ansible.builtin.systemd:
