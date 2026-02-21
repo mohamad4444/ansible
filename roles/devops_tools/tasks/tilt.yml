@@ -1,7 +1,7 @@
 ---
 - name: Download tilt binary
   get_url:
-    url: "https://github.com/tilt-dev/tilt/releases/download/v{{ tilt_version }}/tilt.{{ tilt_version }}.linux.{{ 'x86_64' if ansible_facts['architecture'] == 'x86_64'else 'arm64' }}.tar.gz"
+    url: "https://github.com/tilt-dev/tilt/releases/download/v{{ versions.tilt }}/tilt.{{ versions.tilt }}.linux.{{ 'x86_64' if ansible_facts['architecture'] == 'x86_64'else 'arm64' }}.tar.gz"
     dest: /tmp/tilt.tar.gz
 
 - name: Extract and install tilt

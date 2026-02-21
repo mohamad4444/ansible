@@ -1,7 +1,7 @@
 ---
 - name: Download Helm binary
   get_url:
-    url: "https://get.helm.sh/helm-v{{ helm_version }}-linux-{{ architecture }}.tar.gz"
+    url: "https://get.helm.sh/helm-v{{ versions.helm }}-linux-{{ architecture }}.tar.gz"
     dest: /tmp/helm.tar.gz
 
 - name: Extract and install Helm
@@ -15,7 +15,7 @@
   copy:
     src: "/tmp/linux-{{ architecture }}/helm"
     dest: /usr/local/bin/helm
-    mode: '0755'
+    mode: "0755"
     remote_src: yes
 
 - name: Install Helm bash completion
@@ -27,4 +27,4 @@
   copy:
     content: "{{ helm_completion.stdout }}"
     dest: /etc/bash_completion.d/helm
-    mode: '0644'
+    mode: "0644"

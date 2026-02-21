@@ -15,8 +15,16 @@
         msg: "Running Ansible Project Version: {{ project_version }}"
 
   roles:
-    - preflight
-    - common
-    - k8s
-    - devops_tools
-    - environment
+    - preflight # Update system packages first
+    - common # Base packages and utilities
+    - role: docker # Docker installation (must be before users role)
+      when: features.docker
+    - role: users # Create system users (depends on docker group)
+      when: features.docker
+    - role: k8s # Kubernetes tools
+      when: features.kubernetes
+    - role: devops_tools # GitOps and DevOps tools
+      when: devtools
+    - role: cloud # Cloud provider tools
+      when: features.cloud
+    - environment # Configure shell environment last

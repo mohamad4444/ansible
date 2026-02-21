@@ -1,7 +1,7 @@
 ---
 - name: Download Terraform
   get_url:
-    url: "https://releases.hashicorp.com/terraform/{{ terraform_version }}/terraform_{{ terraform_version }}_linux_{{ architecture }}.zip"
+    url: "https://releases.hashicorp.com/terraform/{{ versions.terraform }}/terraform_{{ versions.terraform }}_linux_{{ architecture }}.zip"
     dest: /tmp/terraform.zip
 
 - name: Extract and install Terraform
@@ -13,7 +13,7 @@
 - name: Ensure terraform is executable
   file:
     path: /usr/local/bin/terraform
-    mode: '0755'
+    mode: "0755"
 
 - name: Check if Terraform autocomplete is already installed
   ansible.builtin.shell: grep -q 'terraform' ~/.bashrc
