@@ -10,6 +10,10 @@ help:
 	@echo "  make run-local        - Run the local playbook (asks for become pass)"
 	@echo "  make run-site         - Run the main site playbook"
 	@echo "  make syntax-check     - Check syntax of all playbooks"
+	
+fixbadowner:
+	bash scripts/fix-badowner.sh
+
 
 test-connection:
 	ansible-inventory -i ./inventory/development/hosts.ini --list
