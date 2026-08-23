@@ -1,5 +1,8 @@
 # Ansible Infrastructure Project
 
+## 🤖 AI Usage Disclosure
+This project is **AI-Generated / Heavily AI-Assisted**. AI tools were used extensively throughout the development process (starting from commit `f1782b6` in January 2026) to generate Ansible roles, structure the configuration, and write the playbooks. While the architecture and goals were human-directed, the majority of the boilerplate and task implementation was AI-generated.
+
 This repository manages our server infrastructure (Rocky Linux VPS) using Ansible.
 
 ## Getting Started
