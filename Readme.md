@@ -1,6 +1,8 @@
 # Ansible Infrastructure Project
 
-This repository manages our server infrastructure (Rocky Linux VPS) using Ansible.
+Ansible playbooks for provisioning a Debian VPS and configuring a local Debian development environment.
+
+The project organizes setup into reusable roles for system packages, Docker, users and SSH access, Kubernetes tooling, cloud CLI tools, and shell configuration. Tool versions and feature flags are configured in the development inventory.
 
 ## Getting Started
 

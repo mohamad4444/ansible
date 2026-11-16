@@ -39,13 +39,13 @@ ssh-copy-id -i ~/.ssh/id_ed25519.pub YOUR_VPS_USERNAME@YOUR_VPS_IP
 
 **Example:**
 ```bash
-ssh-copy-id -i ~/.ssh/id_ed25519.pub rocky@mahamid.net
+ssh-copy-id -i ~/.ssh/id_ed25519.pub debian@mahamid.net
 ```
 
 ### Verify Connection
 Test that you can connect without a password:
 ```bash
-ssh rocky@mahamid.net
+ssh debian@mahamid.net
 ```
 Type `exit` to close the connection and return to your local machine.
 
