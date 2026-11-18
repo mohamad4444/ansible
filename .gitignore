@@ -1,0 +1,24 @@
+# Python
+.venv/
+__pycache__/
+*.pyc
+*.pyo
+
+# Ansible
+*.retry
+.vault_pass
+
+# Bootstrap secrets — never commit the actual hosts config
+bootstrap/hosts.yml
+
+# Runtime / temp
+.runtime/
+cloud-init/rendered/
+live/
+
+# SSH keys (if accidentally placed in project)
+*.pem
+*.key
+id_rsa*
+id_ed25519*
+id_ecdsa*

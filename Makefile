@@ -1,7 +1,9 @@
-.PHONY: help test-connection run-local run-site syntax-check
+.PHONY: help bootstrap bootstrap-dry test-connection run-local run-site syntax-check
 
 # Default target
 help:
+	@echo "  make bootstrap        - Setup SSH keys for all hosts in bootstrap/hosts.yml"
+	@echo "  make bootstrap-dry    - Preview bootstrap without making changes"
 	@echo "Ansible Infrastructure Project Makefile"
 	@echo "======================================="
 	@echo "Available commands:"
@@ -11,6 +13,12 @@ help:
 	@echo "  make run-site         - Run the main site playbook"
 	@echo "  make syntax-check     - Check syntax of all playbooks"
 	
+bootstrap:
+	bash bootstrap/setup-ssh.sh
+
+bootstrap-dry:
+	bash bootstrap/setup-ssh.sh --dry-run
+
 fixbadowner:
 	bash scripts/fix-badowner.sh
 
