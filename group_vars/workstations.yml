@@ -1,0 +1,3 @@
+---
+ssh_client_generate_key: true
+ssh_client_key_type: ed25519

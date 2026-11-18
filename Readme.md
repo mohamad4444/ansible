@@ -63,6 +63,22 @@ ansible all -a "uptime"
 # Gather facts about hosts
 ansible all -m setup
 ```
+# to update verions of packages in vars directory run 
+```bash
+.venv/bin/ansible-playbook \
+  -i localhost, \
+  maintenance/update-versions.yml
+```
+
+.venv/bin/ansible-playbook \
+  -i inventory/bootstrap.ini \
+  bootstrap.yml \
+  --ask-pass
+
+.venv/bin/ansible-playbook \
+  playbooks/workstation.yml \
+  --ask-become-pass
+
 
 ## Roadmap
 
