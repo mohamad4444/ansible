@@ -419,10 +419,12 @@ process_host() {
 
   local remote_cmd=""
   if [[ "$initial_user" == "root" && "$auth_user" != "root" ]]; then
-    # Connect as root, ensure auth_user exists with sudo permissions,
+    # Connect as root, install prerequisite packages for Ansible (sudo, python3, python3-apt),
+    # ensure auth_user exists with sudo permissions,
     # set up authorized_keys for auth_user, and optionally remove the key from root's authorized_keys.
-    info "[$name] Initial user is root and target user is '$auth_user'. Ensuring user '$auth_user' exists with sudo..."
-    remote_cmd="command -v sudo >/dev/null 2>&1 || (apt-get update -qq && apt-get install -y sudo); \
+    info "[$name] Initial user is root and target user is '$auth_user'. Ensuring user '$auth_user' exists with sudo & python..."
+    remote_cmd="export DEBIAN_FRONTEND=noninteractive; \
+which apt-get >/dev/null 2>&1 && apt-get update -qq && apt-get install -y sudo python3 python3-apt; \
 id -u '$auth_user' >/dev/null 2>&1 || useradd -m -s /bin/bash -G sudo '$auth_user'; \
 usermod -aG sudo '$auth_user' 2>/dev/null || true; \
 mkdir -p /etc/sudoers.d && echo '$auth_user ALL=(ALL) NOPASSWD:ALL' > /etc/sudoers.d/99-bootstrap-$auth_user && chmod 0440 /etc/sudoers.d/99-bootstrap-$auth_user; \
@@ -431,7 +433,9 @@ mkdir -p \"\$USER_HOME/.ssh\" && chmod 700 \"\$USER_HOME/.ssh\"; \
 grep -qxF '$pub_key_content' \"\$USER_HOME/.ssh/authorized_keys\" 2>/dev/null || echo '$pub_key_content' >> \"\$USER_HOME/.ssh/authorized_keys\"; \
 chmod 600 \"\$USER_HOME/.ssh/authorized_keys\" && chown -R ${auth_user}:${auth_user} \"\$USER_HOME/.ssh\""
   else
-    remote_cmd="mkdir -p ~/.ssh && chmod 700 ~/.ssh && grep -qxF '$pub_key_content' ~/.ssh/authorized_keys 2>/dev/null || echo '$pub_key_content' >> ~/.ssh/authorized_keys; chmod 600 ~/.ssh/authorized_keys"
+    remote_cmd="export DEBIAN_FRONTEND=noninteractive; \
+which apt-get >/dev/null 2>&1 && apt-get update -qq && apt-get install -y sudo python3 python3-apt; \
+mkdir -p ~/.ssh && chmod 700 ~/.ssh && grep -qxF '$pub_key_content' ~/.ssh/authorized_keys 2>/dev/null || echo '$pub_key_content' >> ~/.ssh/authorized_keys; chmod 600 ~/.ssh/authorized_keys"
   fi
 
   local deploy_ok=false
