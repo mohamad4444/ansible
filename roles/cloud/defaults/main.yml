@@ -1,9 +1,0 @@
----
-# AWS CLI
-install_aws_cli: true
-
-# Terraform
-install_terraform: true
-
-# Vault
-install_vault: true

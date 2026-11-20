@@ -1,7 +1,0 @@
----
-- name: Download skaffold binary
-  get_url:
-    url: "https://storage.googleapis.com/skaffold/releases/latest/skaffold-linux-{{ architecture }}"
-    dest: /usr/local/bin/skaffold
-    mode: "0755"
-    force: no
