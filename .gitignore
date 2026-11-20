@@ -22,3 +22,12 @@ live/
 id_rsa*
 id_ed25519*
 id_ecdsa*
+
+# Restored live credentials and NetBird state (never commit)
+secrets/*
+!secrets/*.example
+state/
+
+# Local build artifacts from the portfolio app
+apps/portfolio/node_modules/
+apps/portfolio/dist/
