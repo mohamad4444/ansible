@@ -1,0 +1,9 @@
+---
+- name: Manage VPS SSH access
+  hosts: debian_servers
+  become: true
+
+  roles:
+    - role: ssh_access
+      vars:
+        ssh_access_keys_dir: "{{ playbook_dir }}/../public_keys"

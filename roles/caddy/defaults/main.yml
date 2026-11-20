@@ -1,0 +1,7 @@
+---
+caddy_container: netbird-caddy
+portfolio_container: portfolio-container
+caddy_domains:
+  - mahamid.net
+  - www.mahamid.net
+netbird_domain: vpn.mahamid.net

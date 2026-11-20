@@ -1,0 +1,5 @@
+---
+ssh_client_generate_key: false
+ssh_client_key_type: ed25519
+ssh_client_key_path: "{{ lookup('env', 'HOME') }}/.ssh/ansible_mahamid"
+ssh_client_owner: "{{ lookup('env', 'USER') }}"

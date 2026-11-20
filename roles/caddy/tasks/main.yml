@@ -1,0 +1,64 @@
+---
+- name: Install Docker
+  ansible.builtin.apt:
+    name:
+      - docker.io
+      - docker-compose
+    state: present
+    update_cache: true
+
+- name: Enable Docker
+  ansible.builtin.service:
+    name: docker
+    enabled: true
+    state: started
+
+- name: Check caddy_net network
+  ansible.builtin.command:
+    cmd: docker network inspect caddy_net
+  register: caddy_net_check
+  changed_when: false
+  failed_when: false
+
+- name: Create caddy_net network
+  ansible.builtin.command:
+    cmd: docker network create caddy_net
+  when: caddy_net_check.rc != 0
+
+- name: Ensure Caddy data directories exist
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    owner: "{{ admin_user }}"
+    group: "{{ admin_user }}"
+    mode: "0755"
+  loop:
+    - "{{ infrastructure_dir }}/data/caddy_data"
+    - "{{ infrastructure_dir }}/data/caddy_config"
+  loop_control:
+    label: "{{ item | basename }}"
+
+- name: Deploy Caddyfile
+  ansible.builtin.template:
+    src: "{{ playbook_dir }}/../files/infrastructure/Caddyfile.j2"
+    dest: "{{ infrastructure_dir }}/Caddyfile"
+    owner: "{{ admin_user }}"
+    group: "{{ admin_user }}"
+    mode: "0644"
+  notify: Reload Caddy
+
+- name: Deploy portfolio source
+  ansible.builtin.copy:
+    src: "{{ playbook_dir }}/../apps/portfolio/"
+    dest: "{{ portfolio_dir }}/"
+    owner: "{{ admin_user }}"
+    group: "{{ admin_user }}"
+    mode: "0644"
+    directory_mode: "0755"
+
+- name: Build and start portfolio
+  ansible.builtin.command:
+    cmd: "{{ docker_compose_cmd }} up -d --build"
+    chdir: "{{ portfolio_dir }}"
+  register: portfolio_compose
+  changed_when: portfolio_compose.stdout | length > 0

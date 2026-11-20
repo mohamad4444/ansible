@@ -1,0 +1,46 @@
+---
+- name: Install Python and sudo
+  ansible.builtin.raw: |
+    apt-get update -qq
+    DEBIAN_FRONTEND=noninteractive apt-get install -y python3 sudo
+  changed_when: false
+
+- name: Create administrative user
+  ansible.builtin.user:
+    name: "{{ admin_user }}"
+    shell: /bin/bash
+    create_home: true
+    groups: sudo
+    append: true
+    password_lock: true
+    state: present
+
+- name: Configure passwordless sudo
+  ansible.builtin.copy:
+    dest: "/etc/sudoers.d/90-{{ admin_user }}"
+    content: "{{ admin_user }} ALL=(ALL) NOPASSWD:ALL\n"
+    owner: root
+    group: root
+    mode: "0440"
+    validate: /usr/sbin/visudo -cf %s
+
+- name: Find first direct-access public key
+  ansible.builtin.find:
+    paths: "{{ playbook_dir }}/../public_keys"
+    patterns: "*direct*.pub"
+    file_type: file
+  register: bootstrap_direct_keys
+  delegate_to: localhost
+  become: false
+
+- name: Fail when no direct-access public key exists
+  ansible.builtin.assert:
+    that: bootstrap_direct_keys.files | length > 0
+    fail_msg: "Add a direct-access public key under public_keys/ before bootstrapping."
+
+- name: Install first workstation SSH public key
+  ansible.posix.authorized_key:
+    user: "{{ admin_user }}"
+    key: "{{ lookup('file', bootstrap_direct_keys.files[0].path) }}"
+    state: present
+    manage_dir: true

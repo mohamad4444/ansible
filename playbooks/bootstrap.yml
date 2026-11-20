@@ -1,0 +1,8 @@
+---
+- name: Bootstrap VPS
+  hosts: debian_servers
+  gather_facts: false
+  become: false
+
+  roles:
+    - bootstrap

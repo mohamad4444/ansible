@@ -1,0 +1,4 @@
+Port {{ ssh_server_port }}
+PermitRootLogin {{ 'yes' if ssh_server_permit_root_login | bool else 'no' }}
+PasswordAuthentication {{ 'yes' if ssh_server_password_authentication | bool else 'no' }}
+PubkeyAuthentication yes

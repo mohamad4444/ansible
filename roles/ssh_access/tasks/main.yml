@@ -1,0 +1,23 @@
+---
+- name: Find approved public keys
+  ansible.builtin.find:
+    paths: "{{ playbook_dir }}/../public_keys"
+    patterns: "*.pub"
+    file_type: file
+  register: ssh_access_key_files
+  delegate_to: localhost
+  become: false
+
+- name: Read approved public keys
+  ansible.builtin.set_fact:
+    ssh_access_key_contents: "{{ ssh_access_key_contents | default([]) + [lookup('file', item)] }}"
+  loop: "{{ ssh_access_key_files.files | map(attribute='path') | list | sort }}"
+  loop_control:
+    label: "{{ item | basename }}"
+
+- name: Authorize approved public keys
+  ansible.posix.authorized_key:
+    user: "{{ admin_user }}"
+    key: "{{ ssh_access_key_contents | join('\n') }}"
+    state: present
+    exclusive: "{{ ssh_access_exclusive | bool }}"

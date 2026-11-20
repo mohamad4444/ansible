@@ -1,0 +1,91 @@
+services:
+  caddy:
+    image: caddy@{{ netbird_images.caddy }}
+    container_name: netbird-caddy
+    restart: unless-stopped
+    networks:
+      - caddy_net
+    ports:
+      - '443:443'
+      - '443:443/udp'
+      - '80:80'
+    volumes:
+      - ./data/caddy_data:/data
+      - ./data/caddy_config:/config
+      - ./Caddyfile:/etc/caddy/Caddyfile
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "500m"
+        max-file: "2"
+
+  dashboard:
+    image: netbirdio/dashboard@{{ netbird_images.dashboard }}
+    container_name: netbird-dashboard
+    restart: unless-stopped
+    networks:
+      - caddy_net
+    env_file:
+      - ./dashboard.env
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "500m"
+        max-file: "2"
+
+  signal:
+    image: netbirdio/signal@{{ netbird_images.signal }}
+    container_name: netbird-signal
+    restart: unless-stopped
+    networks:
+      - caddy_net
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "500m"
+        max-file: "2"
+
+  relay:
+    image: netbirdio/relay@{{ netbird_images.relay }}
+    container_name: netbird-relay
+    restart: unless-stopped
+    networks:
+      - caddy_net
+    ports:
+      - '3478:3478/udp'
+    env_file:
+      - ./relay.env
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "500m"
+        max-file: "2"
+
+  management:
+    image: netbirdio/management@{{ netbird_images.management }}
+    container_name: netbird-management
+    restart: unless-stopped
+    networks:
+      - caddy_net
+    volumes:
+      - ./data/netbird_management:/var/lib/netbird
+      - ./management.json:/etc/netbird/management.json
+    command: [
+      "--port", "80",
+      "--log-file", "console",
+      "--log-level", "info",
+      "--disable-anonymous-metrics=false",
+      "--single-account-mode-domain=netbird.selfhosted",
+      "--dns-domain=netbird.selfhosted",
+      "--idp-sign-key-refresh-enabled",
+    ]
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "500m"
+        max-file: "2"
+
+networks:
+  caddy_net:
+    name: caddy_net
+    external: true

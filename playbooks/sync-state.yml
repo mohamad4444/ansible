@@ -1,0 +1,46 @@
+---
+- name: Sync NetBird state from VPS into the repo
+  hosts: mahamid-vps
+  become: true
+  gather_facts: false
+  vars:
+    state_src_dir: /opt/infrastructure/data/netbird_management
+    state_snapshot_dir: /tmp/netbird-snapshot
+    state_dest_dir: "{{ playbook_dir }}/../state/netbird_management"
+
+  tasks:
+    - name: Create snapshot directory
+      ansible.builtin.file:
+        path: "{{ state_snapshot_dir }}"
+        state: directory
+        mode: "0700"
+
+    - name: Create consistent SQLite backups
+      ansible.builtin.shell: |
+        python3 - <<'PY'
+        import glob, os, sqlite3
+        src = '{{ state_src_dir }}'
+        dst = '{{ state_snapshot_dir }}'
+        for path in glob.glob(os.path.join(src, '*.db')):
+            source = sqlite3.connect('file:' + path + '?mode=ro', uri=True)
+            target = sqlite3.connect(os.path.join(dst, os.path.basename(path)))
+            source.backup(target)
+            target.close()
+            source.close()
+        PY
+
+    - name: Fetch database snapshots into the repo
+      ansible.builtin.fetch:
+        src: "{{ state_snapshot_dir }}/{{ item }}"
+        dest: "{{ state_dest_dir }}/{{ item }}"
+        flat: true
+      loop:
+        - store.db
+        - idp.db
+        - events.db
+        - access_logs.db
+
+    - name: Remove snapshot directory
+      ansible.builtin.file:
+        path: "{{ state_snapshot_dir }}"
+        state: absent

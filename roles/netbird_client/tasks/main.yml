@@ -1,0 +1,168 @@
+---
+- name: Add NetBird apt key
+  ansible.builtin.get_url:
+    url: https://pkgs.netbird.io/debian/public.key
+    dest: /tmp/netbird-public.key
+    mode: "0644"
+  when: ansible_facts['os_family'] == 'Debian'
+
+- name: De-armor NetBird apt key
+  ansible.builtin.command:
+    cmd: gpg --batch --yes --dearmor -o /usr/share/keyrings/netbird-archive-keyring.gpg /tmp/netbird-public.key
+    creates: /usr/share/keyrings/netbird-archive-keyring.gpg
+  when: ansible_facts['os_family'] == 'Debian'
+
+- name: Remove downloaded apt key
+  ansible.builtin.file:
+    path: /tmp/netbird-public.key
+    state: absent
+  when: ansible_facts['os_family'] == 'Debian'
+
+- name: Add NetBird apt repository
+  ansible.builtin.copy:
+    dest: /etc/apt/sources.list.d/netbird.list
+    content: "deb [signed-by=/usr/share/keyrings/netbird-archive-keyring.gpg] https://pkgs.netbird.io/debian stable main\n"
+    mode: "0644"
+  when: ansible_facts['os_family'] == 'Debian'
+
+- name: Install NetBird client on Debian family
+  ansible.builtin.apt:
+    name: "{{ netbird_client_package }}"
+    state: present
+    update_cache: true
+  when: ansible_facts['os_family'] == 'Debian'
+
+- name: Install NetBird client on Arch family
+  community.general.pacman:
+    name: "{{ netbird_client_package }}"
+    state: present
+  when: ansible_facts['os_family'] == 'Archlinux'
+
+- name: Enable NetBird service
+  ansible.builtin.service:
+    name: netbird
+    enabled: true
+    state: started
+
+- name: Check current NetBird status
+  ansible.builtin.command:
+    cmd: netbird status
+  register: netbird_status_check
+  changed_when: false
+  failed_when: false
+
+- name: Check existing NetBird enrollment
+  ansible.builtin.stat:
+    path: /etc/netbird/config.json
+  register: netbird_config
+
+- name: Check stored setup key locally
+  ansible.builtin.stat:
+    path: "{{ netbird_setup_key_file }}"
+  register: netbird_stored_key
+  delegate_to: localhost
+  become: false
+
+- name: Read stored setup key
+  ansible.builtin.slurp:
+    src: "{{ netbird_setup_key_file }}"
+  register: netbird_stored_key_data
+  delegate_to: localhost
+  become: false
+  when: netbird_stored_key.stat.exists
+
+- name: Flag stored setup key for regeneration
+  ansible.builtin.set_fact:
+    netbird_setup_key_needed: >-
+      {{ not netbird_stored_key.stat.exists
+         or 'REPLACE' in (netbird_stored_key_data.content | default('') | b64decode | trim)
+         or (netbird_stored_key_data.content | default('') | b64decode | trim | length) < 10 }}
+
+- name: Generate a Home setup key on the VPS when needed
+  block:
+    - name: Deploy setup key generator
+      ansible.builtin.copy:
+        src: "{{ netbird_setup_key_generator }}"
+        dest: /tmp/generate-setup-key.py
+        mode: "0700"
+
+    - name: Generate setup key in Home group
+      ansible.builtin.command:
+        cmd: python3 /tmp/generate-setup-key.py
+      register: generated_setup_key
+      changed_when: true
+      no_log: true
+
+    - name: Save generated key locally
+      ansible.builtin.copy:
+        content: "{{ generated_setup_key.stdout | trim }}"
+        dest: "{{ netbird_setup_key_file }}"
+        mode: "0600"
+      delegate_to: localhost
+      become: false
+      no_log: true
+
+    - name: Remove setup key generator
+      ansible.builtin.file:
+        path: /tmp/generate-setup-key.py
+        state: absent
+
+  when: netbird_setup_key_auto_generate | bool and netbird_setup_key_needed | bool
+
+- name: Check local setup key file
+  ansible.builtin.stat:
+    path: "{{ netbird_setup_key_file }}"
+  register: netbird_key_file
+  delegate_to: localhost
+  become: false
+
+- name: Read setup key
+  ansible.builtin.set_fact:
+    netbird_setup_key: "{{ lookup('file', netbird_setup_key_file) | trim }}"
+  when: netbird_key_file.stat.exists
+  no_log: true
+
+- name: Warn when no fresh setup key is available
+  ansible.builtin.debug:
+    msg: "NetBird client installed but not enrolled. Put a fresh setup key in secrets/netbird_setup_key."
+  when: not netbird_key_file.stat.exists or netbird_setup_key is undefined or netbird_setup_key | length < 10 or 'REPLACE' in netbird_setup_key
+
+- block:
+    - name: Create temporary setup key file
+      ansible.builtin.tempfile:
+        state: file
+        suffix: .netbird-key
+      register: netbird_key_tmp
+
+    - name: Write setup key to temporary file
+      ansible.builtin.copy:
+        dest: "{{ netbird_key_tmp.path }}"
+        content: "{{ netbird_setup_key }}"
+        mode: "0600"
+      no_log: true
+
+    - name: Enroll NetBird client
+      ansible.builtin.command:
+        cmd: "netbird up --management-url {{ netbird_management_url }} --setup-key-file {{ netbird_key_tmp.path }} --disable-client-routes --allow-server-ssh=false"
+      changed_when: true
+
+  when:
+    - netbird_setup_key is defined
+    - netbird_setup_key | length >= 10
+    - "'REPLACE' not in netbird_setup_key"
+    - "'Daemon status: Connected' not in netbird_status_check.stdout"
+    - netbird_client_force_enroll | bool or not netbird_config.stat.exists or 'NeedsLogin' in netbird_status_check.stdout or 'LoginFailed' in netbird_status_check.stdout
+
+  always:
+    - name: Remove temporary setup key file
+      ansible.builtin.file:
+        path: "{{ netbird_key_tmp.path }}"
+        state: absent
+      when: netbird_key_tmp.path is defined
+
+- name: Show NetBird client status
+  ansible.builtin.command:
+    cmd: netbird status
+  register: netbird_status
+  changed_when: false
+  failed_when: false

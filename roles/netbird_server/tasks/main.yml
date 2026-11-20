@@ -1,0 +1,130 @@
+---
+- name: Install Docker
+  ansible.builtin.apt:
+    name:
+      - docker.io
+      - docker-compose
+    state: present
+    update_cache: true
+
+- name: Enable Docker
+  ansible.builtin.service:
+    name: docker
+    enabled: true
+    state: started
+
+- name: Ensure infrastructure directory exists
+  ansible.builtin.file:
+    path: "{{ infrastructure_dir }}"
+    state: directory
+    owner: "{{ admin_user }}"
+    group: "{{ admin_user }}"
+    mode: "0755"
+
+- name: Check restored local files
+  ansible.builtin.stat:
+    path: "{{ item }}"
+  loop:
+    - "{{ local_secrets_dir }}/management.json"
+    - "{{ local_secrets_dir }}/relay.env"
+    - "{{ local_secrets_dir }}/dashboard.env"
+    - "{{ local_state_dir }}/store.db"
+  register: restored_files
+  delegate_to: localhost
+  become: false
+  loop_control:
+    label: "{{ item | basename }}"
+
+- name: Fail when restored files are missing
+  ansible.builtin.assert:
+    that: restored_files.results | map(attribute='stat.exists') | reject('equalto', true) | list | length == 0
+    fail_msg: "Missing restored files under secrets/ or state/netbird_management/"
+
+- name: Load restored management config
+  ansible.builtin.set_fact:
+    restored_management: "{{ lookup('file', local_secrets_dir + '/management.json') | from_json }}"
+
+- name: Load restored relay secret
+  ansible.builtin.set_fact:
+    restored_relay_secret: >-
+      {{ lookup('file', local_secrets_dir + '/relay.env').splitlines()
+         | select('match', '^NB_AUTH_SECRET=')
+         | map('regex_replace', '^NB_AUTH_SECRET=', '')
+         | first }}
+
+- name: Verify relay secret matches management config
+  ansible.builtin.assert:
+    that:
+      - restored_management.Relay.Secret == restored_relay_secret
+    fail_msg: "management.json Relay.Secret and relay.env NB_AUTH_SECRET differ"
+
+- name: Check existing NetBird state
+  ansible.builtin.stat:
+    path: "{{ netbird_data_dir }}/store.db"
+  register: existing_netbird_state
+
+- name: Ensure backup directory exists
+  ansible.builtin.file:
+    path: "{{ netbird_backup_dir }}"
+    state: directory
+    mode: "0700"
+  when: existing_netbird_state.stat.exists and netbird_restore_state | bool
+
+- name: Back up existing NetBird state
+  ansible.builtin.archive:
+    path: "{{ netbird_data_dir }}"
+    dest: "{{ netbird_backup_dir }}/netbird-{{ ansible_facts['date_time']['iso8601_basic_short'] }}.tar.gz"
+    format: gz
+  when: existing_netbird_state.stat.exists and netbird_restore_state | bool
+
+- name: Ensure NetBird data directory exists
+  ansible.builtin.file:
+    path: "{{ netbird_data_dir }}"
+    state: directory
+    owner: root
+    group: root
+    mode: "0700"
+
+- name: Deploy restored NetBird state
+  ansible.builtin.copy:
+    src: "{{ local_state_dir }}/"
+    dest: "{{ netbird_data_dir }}/"
+    owner: root
+    group: root
+    mode: "0600"
+    directory_mode: "0700"
+  register: netbird_state_deploy
+  when: not existing_netbird_state.stat.exists or netbird_restore_state | bool
+
+- name: Restart management after restoring state
+  ansible.builtin.command:
+    cmd: docker restart netbird-management
+  when: netbird_state_deploy is changed and not netbird_state_deploy is skipped
+
+- name: Deploy NetBird configuration files
+  ansible.builtin.copy:
+    src: "{{ local_secrets_dir }}/{{ item }}"
+    dest: "{{ infrastructure_dir }}/{{ item }}"
+    owner: "{{ admin_user }}"
+    group: "{{ admin_user }}"
+    mode: "0600"
+  loop:
+    - management.json
+    - relay.env
+    - dashboard.env
+  no_log: true
+
+- name: Deploy infrastructure compose file
+  ansible.builtin.template:
+    src: "{{ playbook_dir }}/../files/infrastructure/docker-compose.yml.j2"
+    dest: "{{ infrastructure_dir }}/docker-compose.yml"
+    owner: "{{ admin_user }}"
+    group: "{{ admin_user }}"
+    mode: "0644"
+
+- name: Start infrastructure stack
+  ansible.builtin.command:
+    cmd: "{{ docker_compose_cmd }} up -d --remove-orphans"
+    chdir: "{{ infrastructure_dir }}"
+  register: infrastructure_compose
+  changed_when: infrastructure_compose.stdout | length > 0

@@ -1,0 +1,6 @@
+---
+netbird_client_package: netbird
+netbird_setup_key_file: "{{ local_secrets_dir }}/netbird_setup_key"
+netbird_client_force_enroll: false
+netbird_setup_key_auto_generate: true
+netbird_setup_key_generator: "{{ playbook_dir }}/../files/infrastructure/generate-setup-key.py"

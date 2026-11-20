@@ -1,0 +1,24 @@
+---
+- name: Install OpenSSH client
+  community.general.pacman:
+    name: openssh
+    state: present
+
+- name: Ensure SSH directory exists
+  ansible.builtin.file:
+    path: "{{ ssh_client_key_path | dirname }}"
+    state: directory
+    owner: "{{ ssh_client_owner }}"
+    group: "{{ ssh_client_owner }}"
+    mode: "0700"
+  become: false
+
+- name: Generate SSH key pair
+  community.crypto.openssh_keypair:
+    path: "{{ ssh_client_key_path }}"
+    type: "{{ ssh_client_key_type }}"
+    comment: ansible-mahamid
+    owner: "{{ ssh_client_owner }}"
+    group: "{{ ssh_client_owner }}"
+  when: ssh_client_generate_key | bool
+  become: false
