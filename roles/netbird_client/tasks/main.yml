@@ -141,10 +141,48 @@
         mode: "0600"
       no_log: true
 
-    - name: Enroll NetBird client
+    - name: Enroll NetBird client with setup key
       ansible.builtin.command:
         cmd: "netbird up --management-url {{ netbird_management_url }} --setup-key-file {{ netbird_key_tmp.path }} --disable-client-routes --allow-server-ssh=false"
-      changed_when: true
+      register: netbird_enroll
+      changed_when: netbird_enroll.rc == 0
+      failed_when: false
+
+    - name: Detect expired SSO enrollment
+      ansible.builtin.set_fact:
+        netbird_sso_expired: >-
+          {{ netbird_enroll.rc != 0 and (
+             'originally enrolled via SSO' in ((netbird_enroll.stdout | default('')) + (netbird_enroll.stderr | default('')))
+             or 'PermissionDenied' in ((netbird_enroll.stdout | default('')) + (netbird_enroll.stderr | default('')))
+          ) }}
+
+    - name: Deregister stale SSO peer
+      ansible.builtin.command:
+        cmd: netbird deregister
+      register: netbird_deregister
+      changed_when: netbird_deregister.rc == 0
+      failed_when: false
+      when: netbird_sso_expired | bool
+
+    - name: Enroll NetBird client after deregistering stale peer
+      ansible.builtin.command:
+        cmd: "netbird up --management-url {{ netbird_management_url }} --setup-key-file {{ netbird_key_tmp.path }} --disable-client-routes --allow-server-ssh=false"
+      register: netbird_enroll_retry
+      changed_when: netbird_enroll_retry.rc == 0
+      failed_when: false
+      when:
+        - netbird_sso_expired | bool
+        - netbird_deregister.rc | default(1) | int == 0
+
+    - name: Flag successful NetBird enrollment
+      ansible.builtin.set_fact:
+        netbird_enrollment_succeeded: >-
+          {{ netbird_enroll.rc == 0 or (netbird_enroll_retry.rc | default(1) | int) == 0 }}
+
+    - name: Fail when NetBird enrollment did not succeed
+      ansible.builtin.assert:
+        that: netbird_enrollment_succeeded | bool
+        fail_msg: "NetBird enrollment failed: {{ netbird_enroll.stderr | default(netbird_enroll.stdout | default('')) }}"
 
   when:
     - netbird_setup_key is defined
