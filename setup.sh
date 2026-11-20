@@ -59,6 +59,8 @@ for i in "${!KEY_PATHS[@]}"; do
   fi
 done
 
+git config core.hooksPath .githooks
+
 echo
 echo "Local Ansible environment is ready."
 echo "Verify your VPS SSH host key before bootstrapping."

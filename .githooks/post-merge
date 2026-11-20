@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+repo_root="$(git rev-parse --show-toplevel)"
+cd "$repo_root"
+
+previous="$(git rev-parse 'HEAD@{1}' 2>/dev/null || true)"
+if [[ -n "$previous" ]] && ! git diff --name-only "$previous" HEAD -- public_keys/ | grep -q '\.pub$'; then
+  exit 0
+fi
+
+if [[ -x .venv/bin/ansible-playbook ]]; then
+  exec .venv/bin/ansible-playbook playbooks/access.yml --limit workstations
+fi
+
+exec ansible-playbook playbooks/access.yml --limit workstations

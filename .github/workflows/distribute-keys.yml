@@ -1,0 +1,36 @@
+name: Distribute SSH keys
+
+on:
+  push:
+    branches:
+      - master
+    paths:
+      - 'public_keys/*.pub'
+
+permissions:
+  contents: read
+
+jobs:
+  vps:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install Ansible
+        run: python -m pip install -r requirements.txt
+
+      - name: Configure SSH access to the VPS
+        run: |
+          mkdir -p "$HOME/.ssh"
+          printf '%s\n' "${{ secrets.ANSIBLE_SSH_KEY }}" > "$HOME/.ssh/ansible_mahamid"
+          chmod 600 "$HOME/.ssh/ansible_mahamid"
+          ssh-keyscan -t ed25519 mahamid.net >> "$HOME/.ssh/known_hosts"
+
+      - name: Distribute approved public keys
+        run: ansible-playbook playbooks/access.yml --limit debian_servers
