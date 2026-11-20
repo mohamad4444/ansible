@@ -10,6 +10,8 @@ Follow the setup guide first:
 
 **[Setup Guide](docs/setup.md)**
 
+To onboard another machine, follow [Adding a new device](docs/new-device.md).
+
 ## Requirements
 
 On the control node:
@@ -68,11 +70,13 @@ Configure the VPS (SSH, firewall, Caddy, portfolio, NetBird server, and NetBird 
 .venv/bin/ansible-playbook playbooks/vps.yml
 ```
 
-Authorize approved workstation public keys on the VPS:
+Authorize approved workstation public keys on the VPS and the local workstation:
 
 ```bash
 .venv/bin/ansible-playbook playbooks/access.yml
 ```
+
+A push that changes `public_keys/*.pub` triggers the `Distribute SSH keys` workflow for the VPS, and a `post-merge` git hook applies keys locally on other devices after a pull.
 
 Copy the live NetBird database back into `state/netbird_management/`:
 

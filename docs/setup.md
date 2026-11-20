@@ -140,6 +140,8 @@ Also verify that `debian` can use sudo. Once verified, apply the SSH-hardening r
 
 ## 5. Adding a second workstation
 
+See [Adding a new device](new-device.md) for the full onboarding flow, including automatic key distribution and peer SSH access.
+
 For example, adding an Arch Linux laptop.
 
 ### Step 1 - Prepare the laptop
