@@ -1,9 +1,20 @@
 ---
-- name: Manage VPS SSH access
+- name: Distribute approved keys to VPS
   hosts: debian_servers
   become: true
 
   roles:
     - role: ssh_access
       vars:
-        ssh_access_keys_dir: "{{ playbook_dir }}/../public_keys"
+        ssh_access_user: debian
+
+- name: Distribute approved keys to local workstation
+  hosts: workstations
+  become: false
+
+  roles:
+    - role: ssh_access
+      vars:
+        ssh_access_user: "{{ lookup('env', 'USER') }}"
+        ssh_access_exclusive: false
+        ssh_access_become: false

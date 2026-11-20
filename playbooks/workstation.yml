@@ -6,3 +6,8 @@
   roles:
     - ssh_client
     - netbird_client
+    - role: ssh_access
+      vars:
+        ssh_access_user: "{{ lookup('env', 'USER') }}"
+        ssh_access_exclusive: false
+        ssh_access_become: false

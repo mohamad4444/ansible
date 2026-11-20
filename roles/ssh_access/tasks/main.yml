@@ -17,7 +17,8 @@
 
 - name: Authorize approved public keys
   ansible.posix.authorized_key:
-    user: "{{ admin_user }}"
+    user: "{{ ssh_access_user }}"
     key: "{{ ssh_access_key_contents | join('\n') }}"
     state: present
     exclusive: "{{ ssh_access_exclusive | bool }}"
+  become: "{{ ssh_access_become | bool }}"

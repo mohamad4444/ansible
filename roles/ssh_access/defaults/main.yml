@@ -1,3 +1,5 @@
 ---
 admin_user: debian
+ssh_access_user: "{{ admin_user }}"
 ssh_access_exclusive: true
+ssh_access_become: true
