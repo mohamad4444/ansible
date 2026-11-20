@@ -4,3 +4,5 @@ netbird_setup_key_file: "{{ local_secrets_dir }}/netbird_setup_key"
 netbird_client_force_enroll: false
 netbird_setup_key_auto_generate: true
 netbird_setup_key_generator: "{{ playbook_dir }}/../files/infrastructure/generate-setup-key.py"
+netbird_allow_server_ssh: true
+netbird_ssh_flag: "{{ '--allow-server-ssh' if netbird_allow_server_ssh | bool else '--allow-server-ssh=false' }}"

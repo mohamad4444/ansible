@@ -51,6 +51,13 @@
   changed_when: false
   failed_when: false
 
+- name: Flag NetBird SSH server for enablement
+  ansible.builtin.set_fact:
+    netbird_ssh_enable_needed: >-
+      {{ netbird_allow_server_ssh | bool
+         and 'SSH Server: Disabled' in (netbird_status_check.stdout | default(''))
+         and 'NeedsLogin' not in (netbird_status_check.stdout | default('')) }}
+
 - name: Check existing NetBird enrollment
   ansible.builtin.stat:
     path: /etc/netbird/config.json
@@ -127,6 +134,12 @@
     msg: "NetBird client installed but not enrolled. Put a fresh setup key in secrets/netbird_setup_key."
   when: not netbird_key_file.stat.exists or netbird_setup_key is undefined or netbird_setup_key | length < 10 or 'REPLACE' in netbird_setup_key
 
+- name: Disconnect peer before enabling NetBird SSH server
+  ansible.builtin.command:
+    cmd: netbird down
+  when: netbird_ssh_enable_needed | bool
+  changed_when: true
+
 - block:
     - name: Create temporary setup key file
       ansible.builtin.tempfile:
@@ -143,7 +156,7 @@
 
     - name: Enroll NetBird client with setup key
       ansible.builtin.command:
-        cmd: "netbird up --management-url {{ netbird_management_url }} --setup-key-file {{ netbird_key_tmp.path }} --disable-client-routes --allow-server-ssh=false"
+        cmd: "netbird up --management-url {{ netbird_management_url }} --setup-key-file {{ netbird_key_tmp.path }} --disable-client-routes {{ netbird_ssh_flag }}"
       register: netbird_enroll
       changed_when: netbird_enroll.rc == 0
       failed_when: false
@@ -166,7 +179,7 @@
 
     - name: Enroll NetBird client after deregistering stale peer
       ansible.builtin.command:
-        cmd: "netbird up --management-url {{ netbird_management_url }} --setup-key-file {{ netbird_key_tmp.path }} --disable-client-routes --allow-server-ssh=false"
+        cmd: "netbird up --management-url {{ netbird_management_url }} --setup-key-file {{ netbird_key_tmp.path }} --disable-client-routes {{ netbird_ssh_flag }}"
       register: netbird_enroll_retry
       changed_when: netbird_enroll_retry.rc == 0
       failed_when: false
@@ -189,7 +202,7 @@
     - netbird_setup_key | length >= 10
     - "'REPLACE' not in netbird_setup_key"
     - "'Daemon status: Connected' not in netbird_status_check.stdout"
-    - netbird_client_force_enroll | bool or not netbird_config.stat.exists or 'NeedsLogin' in netbird_status_check.stdout or 'LoginFailed' in netbird_status_check.stdout
+    - netbird_client_force_enroll | bool or not netbird_config.stat.exists or 'NeedsLogin' in netbird_status_check.stdout or 'LoginFailed' in netbird_status_check.stdout or netbird_ssh_enable_needed | bool
 
   always:
     - name: Remove temporary setup key file
