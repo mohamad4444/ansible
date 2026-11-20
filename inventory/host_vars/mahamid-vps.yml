@@ -1,3 +1,6 @@
 ---
-caddy_domain: mahamid.net
+caddy_domains:
+  - mahamid.net
+  - www.mahamid.net
+netbird_domain: vpn.mahamid.net
 netbird_server_domain: vpn.mahamid.net

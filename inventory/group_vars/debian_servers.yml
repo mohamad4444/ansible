@@ -1,4 +1,5 @@
 ---
+admin_user: debian
 ssh_server_port: 22
 ssh_server_permit_root_login: false
 ssh_server_password_authentication: false
