@@ -52,7 +52,10 @@ export function Hero() {
             <a href="#projects">View Projects</a>
           </Button>
           <Button size="lg" variant="outline" className="min-w-40" asChild>
-            <a href="/Mohammad_Mahamid_CV.pdf" download>Download CV</a>
+            <a href="/Mohammad_Mahamid_CV-with-links.pdf" download>Download CV (with links)</a>
+          </Button>
+          <Button size="lg" variant="outline" className="min-w-40" asChild>
+            <a href="/Mohammad_Mahamid_CV-no-links.pdf" download>Download CV (no links)</a>
           </Button>
         </motion.div>
 
