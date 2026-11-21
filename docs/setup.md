@@ -51,7 +51,6 @@ Every workstation receives its own SSH key pair, allowing individual devices to 
 │
 ├── secrets/          gitignored live credentials
 ├── state/            gitignored restored NetBird database
-├── apps/portfolio/   portfolio source served by Caddy
 │
 └── roles/
     ├── bootstrap/
@@ -225,7 +224,7 @@ The previous CentOS VPS stack was migrated into this repository. Three directori
 
 - `secrets/` (gitignored): `management.json`, `relay.env`, and `dashboard.env`. Matching `*.example` files are tracked as references.
 - `state/netbird_management/` (gitignored): the restored NetBird database, including `store.db` with its existing users and peers, plus the GeoIP data files.
-- `apps/portfolio/`: the React/Nginx portfolio source that Caddy serves on the apex domains.
+- Portfolio source: not stored here. The `caddy` role clones https://github.com/mohamad4444/portfolio-website.git into `/opt/portfolio` on the VPS and builds it there; Caddy serves it on the apex domains. Override `portfolio_version` (branch, tag or commit SHA) to pin a release.
 
 The VPS playbook deploys the whole stack:
 
@@ -233,7 +232,7 @@ The VPS playbook deploys the whole stack:
 .venv/bin/ansible-playbook playbooks/vps.yml
 ```
 
-The `caddy` role installs Docker, creates `caddy_net`, writes the Caddyfile from `files/infrastructure/`, deploys and builds the portfolio app. The `netbird_server` role then validates that the relay secret in `management.json` matches `NB_AUTH_SECRET` in `relay.env`, backs up any existing remote NetBird state, copies the restored state and configuration, and starts the stack from `files/infrastructure/docker-compose.yml.j2`. The resulting files live under `/opt/infrastructure` and `/opt/portfolio`.
+The `caddy` role installs Docker and Git, creates `caddy_net`, writes the Caddyfile from `files/infrastructure/`, clones and builds the portfolio app from GitHub. The `netbird_server` role then validates that the relay secret in `management.json` matches `NB_AUTH_SECRET` in `relay.env`, backs up any existing remote NetBird state, copies the restored state and configuration, and starts the stack from `files/infrastructure/docker-compose.yml.j2`. The resulting files live under `/opt/infrastructure` and `/opt/portfolio`.
 
 The VPS is also a NetBird client and enrolls itself without manual steps. The `netbird_client` role adds the NetBird apt repository, installs the client, and if `secrets/netbird_setup_key` is missing or a placeholder, generates a reusable setup key on the VPS via `files/infrastructure/generate-setup-key.py` with `Home` as its auto-group. The key is saved locally and used for enrollment through a temporary root-only file, so it never appears on the command line. Already-connected peers are not re-enrolled. If a restored peer was originally enrolled through an external SSO provider and its session expired, the role deregisters that stale peer and retries enrollment with the setup key.
 

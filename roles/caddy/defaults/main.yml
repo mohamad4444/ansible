@@ -1,6 +1,11 @@
 ---
 caddy_container: netbird-caddy
 portfolio_container: portfolio-container
+
+# Portfolio app source. `portfolio_version` may be a branch, tag or commit SHA.
+portfolio_repo: https://github.com/mohamad4444/portfolio-website.git
+portfolio_version: main
+
 caddy_domains:
   - mahamid.net
   - www.mahamid.net

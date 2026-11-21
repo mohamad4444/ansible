@@ -1,9 +1,10 @@
 ---
-- name: Install Docker
+- name: Install Docker and Git
   ansible.builtin.apt:
     name:
       - docker.io
       - docker-compose
+      - git
     state: present
     update_cache: true
 
@@ -47,18 +48,31 @@
     mode: "0644"
   notify: Reload Caddy
 
-- name: Deploy portfolio source
-  ansible.builtin.copy:
-    src: "{{ playbook_dir }}/../apps/portfolio/"
-    dest: "{{ portfolio_dir }}/"
-    owner: "{{ admin_user }}"
-    group: "{{ admin_user }}"
-    mode: "0644"
-    directory_mode: "0755"
+# The app source used to be copied here from apps/portfolio/. Git cannot clone
+# into a non-empty directory, so drop that legacy tree before the first clone.
+- name: Check whether portfolio source is already a git checkout
+  ansible.builtin.stat:
+    path: "{{ portfolio_dir }}/.git"
+  register: portfolio_git_check
+
+- name: Remove legacy copied portfolio source
+  ansible.builtin.file:
+    path: "{{ portfolio_dir }}"
+    state: absent
+  when: not portfolio_git_check.stat.exists
+
+# The app source is no longer vendored in this repo; clone it directly on the VPS.
+- name: Deploy portfolio source from GitHub
+  ansible.builtin.git:
+    repo: "{{ portfolio_repo }}"
+    dest: "{{ portfolio_dir }}"
+    version: "{{ portfolio_version }}"
+    force: true
+  register: portfolio_checkout
 
 - name: Build and start portfolio
   ansible.builtin.command:
     cmd: "{{ docker_compose_cmd }} up -d --build"
     chdir: "{{ portfolio_dir }}"
   register: portfolio_compose
-  changed_when: portfolio_compose.stdout | length > 0
+  changed_when: portfolio_checkout.changed or portfolio_compose.stdout | length > 0
