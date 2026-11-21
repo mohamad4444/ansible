@@ -1,37 +1,72 @@
 import { motion } from "framer-motion"
 import { Section } from "../components/section"
 import { Button } from "../components/ui/button"
-import { ExternalLink, Github } from "lucide-react"
+import { Github } from "lucide-react"
 
 const projects = [
   {
     title: "Cloud Native Purchase System",
-    description: "Architected a scalable, cloud-native purchase system with full observability on Kubernetes. Implemented ephemeral environments and AOP for logging.",
+    description: "Scalable purchase and inventory microservices on Kubernetes, packaged with Helm and instrumented for full observability.",
     tags: ["Kubernetes", "Helm", "Spring Boot", "Grafana Alloy"],
-    links: { demo: "#", code: "https://github.com/mohamad4444/Purchase-System-Cloud-Native" },
+    links: { code: "https://github.com/mohamad4444/cloud-native-purchase-system" },
     strengths: ["Cloud-Native", "Observability", "Automation"],
   },
   {
     title: "Ansible Infrastructure",
-    description: "Automated infrastructure provisioning and configuration management using Ansible playbooks. Streamlines deployment processes and ensures environment consistency.",
+    description: "Playbooks and roles that provision and manage a VPS: SSH access, firewall, Caddy, and NetBird, with local state sync.",
     tags: ["Ansible", "Python", "DevOps", "IaC"],
-    links: { demo: "#", code: "https://github.com/mohamad4444/ansible" },
+    links: { code: "https://github.com/mohamad4444/ansible" },
     strengths: ["Automation", "Infrastructure", "Config Mgmt"],
   },
   {
-    title: "Events Management System",
-    description: "Designed event-management workflows and developed role/permission systems properly integrated with university processes.",
-    tags: ["Java", "Spring MVC", "Tomcat", "Maven"],
-    links: { demo: "", code: "" },
-    strengths: ["Workflow Design", "RBAC", "Backend"],
+    title: "Kubernetes Certificate Authority",
+    description: "A custom certificate authority for a Kubernetes cluster using cert-manager, with automated issuance and renewal.",
+    tags: ["Kubernetes", "cert-manager", "TLS", "YAML"],
+    links: { code: "https://github.com/mohamad4444/k8s-certificate-authority" },
+    strengths: ["Security", "Kubernetes", "PKI"],
   },
   {
-    title: "LostNFound App",
-    description: "Android application for posting and finding lost items, featuring SQLite integration for local data persistence.",
-    tags: ["Java", "Android Studio", "SQLite"],
-    links: { demo: "", code: "" },
-    strengths: ["Mobile Dev", "Persistence", "UX"],
-  }
+    title: "Terraform AWS Web App Lab",
+    description: "Infrastructure as code for a web application on AWS using EC2, an application load balancer, RDS, and S3.",
+    tags: ["Terraform", "AWS", "EC2", "RDS"],
+    links: { code: "https://github.com/mohamad4444/terraform-aws-webapp-lab" },
+    strengths: ["IaC", "Cloud", "Networking"],
+  },
+  {
+    title: "Spring Boot 6 Learning Template",
+    description: "A Spring Boot 3.5 / Spring Framework 6 template with a task API, persistence, messaging, and security examples.",
+    tags: ["Java", "Spring Boot", "Security", "Messaging"],
+    links: { code: "https://github.com/mohamad4444/spring6-learning-template" },
+    strengths: ["Backend", "REST APIs", "Spring"],
+  },
+  {
+    title: "Python TOTP Manager",
+    description: "Command-line TOTP generator with clipboard support that reads secrets from an external vault file at runtime.",
+    tags: ["Python", "CLI", "TOTP", "Security"],
+    links: { code: "https://github.com/mohamad4444/python-totp-manager" },
+    strengths: ["CLI", "Security", "Packaging"],
+  },
+  {
+    title: "Linux System Automation",
+    description: "Administration scripts, installation tasks, infrastructure tooling, and dotfiles for day-to-day Linux operations.",
+    tags: ["Bash", "Linux", "Automation", "Dotfiles"],
+    links: { code: "https://github.com/mohamad4444/linux-system-automation" },
+    strengths: ["Automation", "Sysadmin", "Scripting"],
+  },
+  {
+    title: "Java Annotation Processor",
+    description: "Compile-time annotation processor that generates database access classes from annotated DTOs.",
+    tags: ["Java", "Annotation Processor", "Codegen"],
+    links: { code: "https://github.com/mohamad4444/java-annotation-processor" },
+    strengths: ["Backend", "Metaprogramming", "Codegen"],
+  },
+  {
+    title: "DSA Practice Problems",
+    description: "A collection of data structures and algorithms solutions with a LeetCode importer for focused practice.",
+    tags: ["Java", "Algorithms", "Data Structures"],
+    links: { code: "https://github.com/mohamad4444/dsa-practice-problems" },
+    strengths: ["Algorithms", "Problem Solving"],
+  },
 ]
 
 export function Projects() {
@@ -80,13 +115,6 @@ export function Projects() {
                   <Button variant="ghost" size="sm" className="w-full gap-2 hover:bg-primary/10 hover:text-primary transition-colors" asChild>
                     <a href={project.links.code} aria-label={`View code for ${project.title}`} target="_blank" rel="noopener noreferrer">
                       <Github className="w-4 h-4" /> <span className="font-semibold">Code</span>
-                    </a>
-                  </Button>
-                )}
-                {project.links.demo && project.links.demo !== "" && (
-                   <Button size="sm" className="w-full gap-2 group/btn shadow-md hover:shadow-lg transition-all" asChild>
-                    <a href={project.links.demo} aria-label={`View demo for ${project.title}`} target="_blank" rel="noopener noreferrer">
-                      <ExternalLink className="w-4 h-4 group-hover/btn:-translate-y-0.5 group-hover/btn:translate-x-0.5 transition-transform" /> <span className="font-semibold">Live Demo</span>
                     </a>
                   </Button>
                 )}

@@ -1,0 +1,10 @@
+---
+- name: Deploy portfolio only
+  hosts: debian_servers
+  become: true
+
+  # Deploys the React portfolio source from apps/portfolio/ and reloads Caddy.
+  # Intentionally excludes ssh_server, firewall, netbird_server and netbird_client
+  # so a content update never changes SSH, firewall or VPN settings.
+  roles:
+    - caddy
