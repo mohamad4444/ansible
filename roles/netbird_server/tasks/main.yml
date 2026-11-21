@@ -124,26 +124,10 @@
   register: infrastructure_compose
   changed_when: infrastructure_compose.stdout | length > 0
 
-- name: Deploy Google connector cleanup script
-  ansible.builtin.copy:
-    src: "{{ netbird_google_connector_cleanup }}"
-    dest: /tmp/remove-google-connector.py
-    mode: "0700"
-
-- name: Remove external Google connector from embedded IdP state
-  ansible.builtin.command:
-    cmd: python3 /tmp/remove-google-connector.py "{{ netbird_data_dir }}/idp.db"
-  register: google_connector_cleanup
-  changed_when: "'removed' in google_connector_cleanup.stdout"
-
-- name: Remove Google connector cleanup script
-  ansible.builtin.file:
-    path: /tmp/remove-google-connector.py
-    state: absent
-
-- name: Restart management after state restore or IdP cleanup
+- name: Restart management after state restore
   ansible.builtin.command:
     cmd: docker restart netbird-management
   when:
-    - (netbird_state_deploy is changed and not netbird_state_deploy is skipped) or google_connector_cleanup is changed
+    - netbird_state_deploy is changed
+    - not netbird_state_deploy is skipped
   changed_when: true

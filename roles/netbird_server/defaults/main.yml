@@ -3,4 +3,3 @@ local_secrets_dir: "{{ playbook_dir }}/../secrets"
 local_state_dir: "{{ playbook_dir }}/../state/netbird_management"
 netbird_data_dir: "{{ infrastructure_dir }}/data/netbird_management"
 netbird_restore_state: false
-netbird_google_connector_cleanup: "{{ playbook_dir }}/../files/infrastructure/remove-google-connector.py"
